@@ -5,6 +5,7 @@ type FileSystemType string
 const (
 	FileSystemSwap FileSystemType = "swap"
 	FileSystemExt4 FileSystemType = "ext4"
+	FileSystemNtfs FileSystemType = "ntfs"
 )
 
 type Formatter interface {
