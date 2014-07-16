@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	Describe("Testing with Ginkgo", func() {
+	Describe("MountSearcher", func() {
 		It("windows mount searcher test", func() {
 			fakeFs := fakesys.NewFakeFileSystem()
 

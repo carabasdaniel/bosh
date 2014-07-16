@@ -34,5 +34,6 @@ func (d FakeDiskPart) GetDiskInfo(diskid int) (diskname, status string, size, fr
 	return "nn", "OK", 123, 121
 }
 func (d FakeDiskPart) GetVolumes() (volumes map[int]string, err error) {
-	return nil, nil
+	volumes[3] = "Test-RAW"
+	return volumes, nil
 }

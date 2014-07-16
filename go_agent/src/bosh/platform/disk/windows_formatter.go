@@ -25,6 +25,13 @@ func NewWindowsFormatter(runner boshsys.CmdRunner, fs boshsys.FileSystem) (forma
 	return formatter
 }
 
+func NewFakeWindowsFormatter(runner boshsys.CmdRunner, fs boshsys.FileSystem, dp DiskPartInterface) (formatter windowsFormatter) {
+	formatter.runner = runner
+	formatter.fs = fs
+	formatter.DPart = dp
+	return formatter
+}
+
 func (f windowsFormatter) ChangeDiskPart(dp DiskPartInterface) {
 	f.DPart = dp
 	return

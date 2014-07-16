@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	Describe("Testing with Ginkgo", func() {
+	Describe("WindowsFormatter", func() {
 		It("windows format with path", func() {
 
 			fakeRunner := fakesys.NewFakeCmdRunner()
@@ -25,8 +25,7 @@ func init() {
 			fakeRunner := fakesys.NewFakeCmdRunner()
 			fakeFs := fakesys.NewFakeFileSystem()
 
-			formatter := NewWindowsFormatter(fakeRunner, fakeFs)
-			formatter.ChangeDiskPart(fakedisk.NewFakeDiskPart())
+			formatter := NewFakeWindowsFormatter(fakeRunner, fakeFs, fakedisk.NewFakeDiskPart())
 
 			err := formatter.Format("1", FileSystemNtfs)
 			Expect(err).ToNot(HaveOccurred())

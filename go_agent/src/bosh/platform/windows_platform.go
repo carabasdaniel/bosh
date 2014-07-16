@@ -2,12 +2,14 @@ package platform
 
 import (
 	//"encoding/json"
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
+	"text/template"
 	"time"
 
 	bosherr "bosh/errors"
@@ -265,8 +267,26 @@ func (p windowsPlatform) findEphemeralUsersMatching(reg *regexp.Regexp) (matchin
 	return
 }
 
+//TO DO: Set up ssh with assumption of cygwin installation in the baseDir
 func (p windowsPlatform) SetupSsh(publicKey, username string) (err error) {
-	fmt.Printf("Setup ssh\n")
+	baseDir := filepath.Join(p.dirProvider.BaseDir(), "cygwin")
+	if _, err := os.Stat(baseDir); err != nil {
+		if os.IsNotExist(err) {
+			err = bosherr.WrapError(err, "Finding cygwin dir in baseDir from dirProvider")
+			return err
+		}
+	}
+
+	sshPath := filepath.Join(baseDir, "admin_home", ".ssh")
+	p.fs.MkdirAll(sshPath, os.FileMode(0700))
+
+	authKeysPath := filepath.Join(sshPath, "authorized_keys")
+	err = p.fs.WriteFileString(authKeysPath, publicKey)
+	if err != nil {
+		err = bosherr.WrapError(err, "Creating authorized_keys file")
+		return
+	}
+
 	return
 }
 
@@ -317,11 +337,38 @@ func (p windowsPlatform) SetupHostname(hostname string) (err error) {
 	return
 }
 
+//TO DO: Change this to relative path for LogRotate
+const WinlogRotatorPath = "C:\\LogRotator\\"
+
 func (p windowsPlatform) SetupLogrotate(groupName, basePath, size string) (err error) {
-	fmt.Printf("Setup Logrotate\n")
+	buffer := bytes.NewBuffer([]byte{})
+	t := template.Must(template.New("logrotate-d-config").Parse(logRotateWindowsTemplate))
+
+	type logrotateArgs struct {
+		BasePath string
+		Size     string
+	}
+
+	err = t.Execute(buffer, logrotateArgs{basePath, size})
+	if err != nil {
+		err = bosherr.WrapError(err, "Generating logrotate config")
+		return
+	}
+
+	err = p.fs.WriteFile(filepath.Join(WinlogRotatorPath, "LogRotator.xml"), buffer.Bytes())
+	if err != nil {
+		err = bosherr.WrapError(err, "Writing to LogRotator.xml")
+		return
+	}
 
 	return
 }
+
+const logRotateWindowsTemplate = `<?xml version="1.0" encoding="utf-8" ?>
+<logRotator poolInterval="900000">  
+  <pattern action="rotate" dirPath="{{ .BasePath }}\data\sys\log\*.log" filePattern="*.log" offset="00:01:00" subDirs="true" size="{{.Size}}"/>
+  <pattern action="delete" dirPath="{{ .BasePath }}\data\sys\log\*.log" filePattern="*.gz" offset="00:10:00" deleteUnCompressed="false" subDirs="true"/>
+</logRotator>`
 
 func (p windowsPlatform) SetTimeWithNtpServers(servers []string) (err error) {
 	if len(servers) == 0 {
@@ -372,7 +419,7 @@ func (p windowsPlatform) SetupEphemeralDiskWithPath(realPath string) (err error)
 	}
 
 	if realPath == "" {
-		p.logger.Debug("platform", "Using root disk as ephemeral disk")
+		//p.logger.Debug("platform", "Using root disk as ephemeral disk")
 		return nil
 	}
 
@@ -490,7 +537,7 @@ func (p windowsPlatform) changeTmpDirPermissions(path string) error {
 
 //devicePath needs to represent the volume id
 func (p windowsPlatform) MountPersistentDisk(devicePath, mountPoint string) (err error) {
-	p.logger.Debug("platform", "Mounting persistent disk volume %s at %s", devicePath, mountPoint)
+	//p.logger.Debug("platform", "Mounting persistent disk volume %s at %s", devicePath, mountPoint)
 
 	err = p.fs.MkdirAll(mountPoint, os.FileMode(0700))
 	if err != nil {
@@ -544,7 +591,8 @@ func (p windowsPlatform) MountPersistentDisk(devicePath, mountPoint string) (err
 
 //devicePath must be volume id
 func (p windowsPlatform) UnmountPersistentDisk(devicePath string) (didUnmount bool, err error) {
-	p.logger.Debug("platform", "Unmounting persistent disk %s", devicePath)
+
+	//p.logger.Debug("platform", "Unmounting persistent disk %s", devicePath)
 
 	_, err = strconv.Atoi(devicePath)
 

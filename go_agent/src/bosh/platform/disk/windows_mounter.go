@@ -28,11 +28,12 @@ func NewWindowsMounter(
 	mounter.runner = runner
 	mounter.maxUnmountRetries = 600
 	mounter.unmountRetrySleep = unmountRetrySleep
+	mounter.mountsSearcher = mountsSearcher
 	mounter.dp = NewDiskPart()
 	return
 }
 
-func NewTestWindowsMounter(
+func NewFakeWindowsMounter(
 	runner boshsys.CmdRunner,
 	mountsSearcher MountsSearcher,
 	unmountRetrySleep time.Duration,
@@ -42,6 +43,7 @@ func NewTestWindowsMounter(
 	mounter.maxUnmountRetries = 600
 	mounter.unmountRetrySleep = unmountRetrySleep
 	mounter.dp = dp
+	mounter.mountsSearcher = mountsSearcher
 	return
 }
 func (m windowsMounter) CreatePrimaryPartition(DiskId int64, label string) error {
@@ -99,7 +101,7 @@ func (m windowsMounter) Remount(fromMountPoint, toMountPoint string, mountOption
 		return bosherr.WrapError(err, "Error finding device for mount point %s", fromMountPoint)
 	}
 
-	_, err = m.Unmount(fromMountPoint)
+	_, err = m.Unmount(partitionPath)
 	if err != nil {
 		return bosherr.WrapError(err, "Unmounting %s", fromMountPoint)
 	}
