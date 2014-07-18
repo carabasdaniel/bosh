@@ -9,3 +9,4 @@ D:\WORK\CSharpCode\BoshUtilities\BoshUtilities\bin\Debug\Uhuru.Utilities.xml
 D:\WORK\CSharpCode\BoshUtilities\BoshUtilities\obj\Debug\BoshUtilities.dll
 D:\WORK\CSharpCode\BoshUtilities\BoshUtilities\obj\Debug\BoshUtilities.pdb
 D:\WORK\CSharpCode\BoshUtilities\BoshUtilities\bin\Debug\BoshUtilities.tlb
+D:\WORK\CSharpCode\BoshUtilities\BoshUtilities\obj\Debug\BoshUtilities.csprojResolveAssemblyReference.cache
