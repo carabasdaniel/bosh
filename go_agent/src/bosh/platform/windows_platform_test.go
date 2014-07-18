@@ -215,6 +215,15 @@ var _ = Describe("WindowsPlatform", func() {
 		})
 	})
 
+	Describe("SetupSSH", func() {
+		It("test windows platform ssh setup", func() {
+			err := platform.SetupSsh("fake-key", "fake-user")
+			authorizedkeycontent, err := fs.ReadFileString("C:\\cygwin\\admin_home\\.ssh\\authorized_keys")
+			Expect(len(authorizedkeycontent)).NotTo(BeZero())
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
+
 	//clean-up user tests
 	Describe("DeleteEphemeralUsersMatching", func() {
 		It("deletes users with prefix and regex", func() {

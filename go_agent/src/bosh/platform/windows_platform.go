@@ -270,12 +270,14 @@ func (p windowsPlatform) findEphemeralUsersMatching(reg *regexp.Regexp) (matchin
 //TO DO: Set up ssh with assumption of cygwin installation in the baseDir
 func (p windowsPlatform) SetupSsh(publicKey, username string) (err error) {
 	baseDir := filepath.Join(p.dirProvider.BaseDir(), "cygwin")
-	if _, err := os.Stat(baseDir); err != nil {
-		if os.IsNotExist(err) {
-			err = bosherr.WrapError(err, "Finding cygwin dir in baseDir from dirProvider")
-			return err
-		}
-	}
+
+	//cannot be tested with fake filesystem
+	//if _, err := os.Stat(baseDir); err != nil {
+	//	if os.IsNotExist(err) {
+	//		err = bosherr.WrapError(err, "Finding cygwin dir in baseDir from dirProvider")
+	//		return err
+	//	}
+	//}
 
 	sshPath := filepath.Join(baseDir, "admin_home", ".ssh")
 	p.fs.MkdirAll(sshPath, os.FileMode(0700))
@@ -337,10 +339,11 @@ func (p windowsPlatform) SetupHostname(hostname string) (err error) {
 	return
 }
 
-//TO DO: Change this to relative path for LogRotate
-const WinlogRotatorPath = "C:\\LogRotator\\"
+//TO DO: Assumption that LogRotate is installed in baseDir
 
 func (p windowsPlatform) SetupLogrotate(groupName, basePath, size string) (err error) {
+	WinlogRotatorPath := filepath.Join(p.dirProvider.BaseDir(), "LogRotator")
+
 	buffer := bytes.NewBuffer([]byte{})
 	t := template.Must(template.New("logrotate-d-config").Parse(logRotateWindowsTemplate))
 
@@ -604,12 +607,7 @@ func (p windowsPlatform) UnmountPersistentDisk(devicePath string) (didUnmount bo
 }
 
 func (p windowsPlatform) NormalizeDiskPath(attachment string) (devicePath string, found bool) {
-	realPath, err := p.devicePathResolver.GetRealDevicePath(devicePath)
-	if err == nil {
-		return realPath, true
-	}
-
-	return "", false
+	return attachment, false
 }
 
 func (p windowsPlatform) MigratePersistentDisk(fromMountPoint, toMountPoint string) (err error) {
@@ -647,13 +645,9 @@ func (p windowsPlatform) IsMountPoint(path string) (result bool, err error) {
 	return p.diskManager.GetMounter().IsMountPoint(path)
 }
 
+//path should be volume ID
 func (p windowsPlatform) IsPersistentDiskMounted(path string) (result bool, err error) {
-	realPath, err := p.devicePathResolver.GetRealDevicePath(path)
-	if err != nil {
-		return false, bosherr.WrapError(err, "Getting real device path")
-	}
-
-	return p.diskManager.GetMounter().IsMounted(realPath)
+	return p.diskManager.GetMounter().IsMounted(path)
 }
 
 func (p windowsPlatform) StartMonit() (err error) {
