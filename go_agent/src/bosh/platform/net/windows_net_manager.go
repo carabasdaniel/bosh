@@ -56,6 +56,7 @@ func (net windowsNetManager) SetupDhcp(networks boshsettings.Networks, errCh cha
 			errCh <- err
 		}
 	}
+	close(errCh)
 	return nil
 }
 
@@ -67,6 +68,7 @@ func (net windowsNetManager) SetupManualNetworking(networks boshsettings.Network
 			errCh <- err
 		}
 	}
+	close(errCh)
 	return nil
 }
 
