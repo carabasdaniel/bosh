@@ -3,9 +3,10 @@ package disk
 type PartitionType string
 
 const (
-	PartitionTypeSwap  PartitionType = "swap"
-	PartitionTypeLinux PartitionType = "linux"
-	PartitionTypeEmpty PartitionType = "empty"
+	PartitionTypeSwap    PartitionType = "swap"
+	PartitionTypeLinux   PartitionType = "linux"
+	PartitionTypeEmpty   PartitionType = "empty"
+	PartitionTypeWindows PartitionType = "windows"
 )
 
 type Partition struct {

@@ -44,6 +44,7 @@ func NewProvider(logger boshlog.Logger, dirProvider boshdirs.DirectoriesProvider
 	fs := boshsys.NewOsFileSystem(logger)
 
 	linuxDiskManager := boshdisk.NewLinuxDiskManager(logger, runner, fs, options.Linux.BindMountPersistentDisk)
+	windowsDiskManager := boshdisk.NewWindowsDiskManager(logger, runner, fs, false)
 
 	udev := boshudev.NewConcreteUdevDevice(runner)
 	linuxCdrom := boshcdrom.NewLinuxCdrom("/dev/sr0", udev, runner)
@@ -67,6 +68,7 @@ func NewProvider(logger boshlog.Logger, dirProvider boshdirs.DirectoriesProvider
 
 	centosNetManager := boshnet.NewCentosNetManager(fs, runner, defaultNetworkResolver, ipResolver, arping, logger)
 	ubuntuNetManager := boshnet.NewUbuntuNetManager(fs, runner, defaultNetworkResolver, ipResolver, arping, logger)
+	windowsNetManager := boshnet.NewWindowsNetManager(fs, runner, defaultNetworkResolver, ipResolver, arping, logger)
 
 	centos := NewLinuxPlatform(
 		fs,
@@ -100,10 +102,23 @@ func NewProvider(logger boshlog.Logger, dirProvider boshdirs.DirectoriesProvider
 		logger,
 	)
 
+	windows := NewWindowsPlatform(
+		fs,
+		runner,
+		sigarCollector,
+		nil,
+		dirProvider,
+		windowsDiskManager,
+		windowsNetManager,
+		500*time.Microsecond,
+		logger,
+	)
+
 	p.platforms = map[string]Platform{
-		"ubuntu": ubuntu,
-		"centos": centos,
-		"dummy":  NewDummyPlatform(sigarCollector, fs, runner, dirProvider, logger),
+		"ubuntu":  ubuntu,
+		"centos":  centos,
+		"windows": windows,
+		"dummy":   NewDummyPlatform(sigarCollector, fs, runner, dirProvider, logger),
 	}
 	return
 }

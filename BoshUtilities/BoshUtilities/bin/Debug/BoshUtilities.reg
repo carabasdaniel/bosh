@@ -1,0 +1,85 @@
+REGEDIT4
+
+[HKEY_CLASSES_ROOT\BoshUtilities.NtpClient]
+@="BoshUtilities.NtpClient"
+
+[HKEY_CLASSES_ROOT\BoshUtilities.NtpClient\CLSID]
+@="{2D62E5C6-92E5-3EC8-8855-750C04E3B0C3}"
+
+[HKEY_CLASSES_ROOT\CLSID\{2D62E5C6-92E5-3EC8-8855-750C04E3B0C3}]
+@="BoshUtilities.NtpClient"
+
+[HKEY_CLASSES_ROOT\CLSID\{2D62E5C6-92E5-3EC8-8855-750C04E3B0C3}\InprocServer32]
+@="mscoree.dll"
+"ThreadingModel"="Both"
+"Class"="BoshUtilities.NtpClient"
+"Assembly"="BoshUtilities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+"RuntimeVersion"="v4.0.30319"
+"CodeBase"="file:///D:/WORK/CSharpCode/BoshUtilities/BoshUtilities/bin/Debug/BoshUtilities.dll"
+
+[HKEY_CLASSES_ROOT\CLSID\{2D62E5C6-92E5-3EC8-8855-750C04E3B0C3}\InprocServer32\1.0.0.0]
+"Class"="BoshUtilities.NtpClient"
+"Assembly"="BoshUtilities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+"RuntimeVersion"="v4.0.30319"
+"CodeBase"="file:///D:/WORK/CSharpCode/BoshUtilities/BoshUtilities/bin/Debug/BoshUtilities.dll"
+
+[HKEY_CLASSES_ROOT\CLSID\{2D62E5C6-92E5-3EC8-8855-750C04E3B0C3}\ProgId]
+@="BoshUtilities.NtpClient"
+
+[HKEY_CLASSES_ROOT\CLSID\{2D62E5C6-92E5-3EC8-8855-750C04E3B0C3}\Implemented Categories\{62C8FE65-4EBB-45E7-B440-6E39B2CDBF29}]
+
+[HKEY_CLASSES_ROOT\BoshUtilities.WindowsNetwork]
+@="BoshUtilities.WindowsNetwork"
+
+[HKEY_CLASSES_ROOT\BoshUtilities.WindowsNetwork\CLSID]
+@="{2EE86165-394B-30D8-80FE-9B42C6EE05B4}"
+
+[HKEY_CLASSES_ROOT\CLSID\{2EE86165-394B-30D8-80FE-9B42C6EE05B4}]
+@="BoshUtilities.WindowsNetwork"
+
+[HKEY_CLASSES_ROOT\CLSID\{2EE86165-394B-30D8-80FE-9B42C6EE05B4}\InprocServer32]
+@="mscoree.dll"
+"ThreadingModel"="Both"
+"Class"="BoshUtilities.WindowsNetwork"
+"Assembly"="BoshUtilities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+"RuntimeVersion"="v4.0.30319"
+"CodeBase"="file:///D:/WORK/CSharpCode/BoshUtilities/BoshUtilities/bin/Debug/BoshUtilities.dll"
+
+[HKEY_CLASSES_ROOT\CLSID\{2EE86165-394B-30D8-80FE-9B42C6EE05B4}\InprocServer32\1.0.0.0]
+"Class"="BoshUtilities.WindowsNetwork"
+"Assembly"="BoshUtilities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+"RuntimeVersion"="v4.0.30319"
+"CodeBase"="file:///D:/WORK/CSharpCode/BoshUtilities/BoshUtilities/bin/Debug/BoshUtilities.dll"
+
+[HKEY_CLASSES_ROOT\CLSID\{2EE86165-394B-30D8-80FE-9B42C6EE05B4}\ProgId]
+@="BoshUtilities.WindowsNetwork"
+
+[HKEY_CLASSES_ROOT\CLSID\{2EE86165-394B-30D8-80FE-9B42C6EE05B4}\Implemented Categories\{62C8FE65-4EBB-45E7-B440-6E39B2CDBF29}]
+
+[HKEY_CLASSES_ROOT\BoshUtilities.WindowsUsersAndGroups]
+@="BoshUtilities.WindowsUsersAndGroups"
+
+[HKEY_CLASSES_ROOT\BoshUtilities.WindowsUsersAndGroups\CLSID]
+@="{64F916E8-4138-373E-8D4A-05A62DC90E25}"
+
+[HKEY_CLASSES_ROOT\CLSID\{64F916E8-4138-373E-8D4A-05A62DC90E25}]
+@="BoshUtilities.WindowsUsersAndGroups"
+
+[HKEY_CLASSES_ROOT\CLSID\{64F916E8-4138-373E-8D4A-05A62DC90E25}\InprocServer32]
+@="mscoree.dll"
+"ThreadingModel"="Both"
+"Class"="BoshUtilities.WindowsUsersAndGroups"
+"Assembly"="BoshUtilities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+"RuntimeVersion"="v4.0.30319"
+"CodeBase"="file:///D:/WORK/CSharpCode/BoshUtilities/BoshUtilities/bin/Debug/BoshUtilities.dll"
+
+[HKEY_CLASSES_ROOT\CLSID\{64F916E8-4138-373E-8D4A-05A62DC90E25}\InprocServer32\1.0.0.0]
+"Class"="BoshUtilities.WindowsUsersAndGroups"
+"Assembly"="BoshUtilities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+"RuntimeVersion"="v4.0.30319"
+"CodeBase"="file:///D:/WORK/CSharpCode/BoshUtilities/BoshUtilities/bin/Debug/BoshUtilities.dll"
+
+[HKEY_CLASSES_ROOT\CLSID\{64F916E8-4138-373E-8D4A-05A62DC90E25}\ProgId]
+@="BoshUtilities.WindowsUsersAndGroups"
+
+[HKEY_CLASSES_ROOT\CLSID\{64F916E8-4138-373E-8D4A-05A62DC90E25}\Implemented Categories\{62C8FE65-4EBB-45E7-B440-6E39B2CDBF29}]

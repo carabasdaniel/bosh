@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{23485F8B-9F68-483C-AE72-8DC57D0BD382}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>BoshUtilities</RootNamespace>
+    <AssemblyName>BoshUtilities</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <RegisterForComInterop>true</RegisterForComInterop>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.3\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.DirectoryServices.AccountManagement" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Management.Instrumentation" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Uhuru.Utilities">
+      <HintPath>lib\Uhuru.Utilities.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="INTPClient.cs" />
+    <Compile Include="IWindowsNetwork.cs" />
+    <Compile Include="IWindowsUsersAndGroups.cs" />
+    <Compile Include="NativeMethods.cs" />
+    <Compile Include="Ntp.cs" />
+    <Compile Include="NTPClient.cs" />
+    <Compile Include="Objects\AlertAttrib.cs" />
+    <Compile Include="Objects\AlertData.cs" />
+    <Compile Include="Objects\CompileResult.cs" />
+    <Compile Include="Objects\CPUInfo.cs" />
+    <Compile Include="Objects\DiskInfo.cs" />
+    <Compile Include="Objects\EphemeralDiskInfo.cs" />
+    <Compile Include="Objects\HandlerResult.cs" />
+    <Compile Include="Objects\HeartbeatMessage.cs" />
+    <Compile Include="Objects\Job.cs" />
+    <Compile Include="Objects\JobManifest.cs" />
+    <Compile Include="Objects\MemoryInfo.cs" />
+    <Compile Include="Objects\Network.cs" />
+    <Compile Include="Objects\PersistentDiskInfo.cs" />
+    <Compile Include="Objects\SshResult.cs" />
+    <Compile Include="Objects\SystemDiskInfo.cs" />
+    <Compile Include="Objects\SystemStatus.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Vitals.cs" />
+    <Compile Include="WindowsNetwork.cs" />
+    <Compile Include="WindowsUsersAndGroups.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="lib\Uhuru.Utilities.dll" />
+    <Content Include="lib\Uhuru.Utilities.pdb" />
+    <Content Include="lib\Uhuru.Utilities.XML" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

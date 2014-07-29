@@ -1,0 +1,3159 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Uhuru.Utilities</name>
+    </assembly>
+    <members>
+        <member name="T:Uhuru.Utilities.WindowsJobObjects.JobObject">
+            <summary>
+            Is a class that manages a Windows Job Object. Job Objects allows to group a number of processes and
+            perform some aggregate operations. It is a good tool for enforcing resource sandboxing for processes.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.jobHandle">
+            <summary>
+            The Windows Handle
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.killProcessesOnJobClose">
+            <summary>
+            Flag to kill processes on job close.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.dieOnUnhandledException">
+            <summary>
+            Die on unhandled exception.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.allowChildProcessesBreakaway">
+            <summary>
+            Allow child process breakaway.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.alwaysBreakawayChildProcesses">
+            <summary>
+            Breakaway child processes by default.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.activeProcessesLimit">
+            <summary>
+            Maximum number of active processes.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.jobMemoryLimit">
+            <summary>
+            The memory limit of the Job Object.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.processMemoryLimit">
+            <summary>
+            The memory limit of each process in the Job Object.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.jobUserTimeLimitChanged">
+            <summary>
+            Flag if the job processor user time limit has changed.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.jobUserTimeLimit">
+            <summary>
+            The processor user time limit for the job.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.processUserTimeLimit">
+            <summary>
+            The user time limit per each process in the job.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.priorityClass">
+            <summary>
+            The priority class of the Job Object.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.schedulingClass">
+            <summary>
+            The scheduling class.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.affinity">
+            <summary>
+            The processor affinity.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.ioReadOperationsCount">
+            <summary>
+            The read IO operations count for the whole job.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.ioWriteOperationsCount">
+            <summary>
+            The write IO operations count for the whole job.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.ioOtherOperationsCount">
+            <summary>
+            Other IO operations count for the while job.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.ioReadBytes">
+            <summary>
+            Total IO bytes read by the job.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.ioWriteBytes">
+            <summary>
+            Total IO bytes written by the job.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.ioOtherBytes">
+            <summary>
+            Total IO bytes used in other operations.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.peakJobMemory">
+            <summary>
+            Peak memory usage by the job.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.peakProcessMemory">
+            <summary>
+            Peak memory usage by a process.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.userProcessorTime">
+            <summary>
+            Total user processor time used by the job.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.kernelProcessorTime">
+            <summary>
+            Total kernel processor time used by the job.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.totalProcesses">
+            <summary>
+            Total processes that was in the job object.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.activeProcesses">
+            <summary>
+            Active processes in the job object.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.totalTerminatedProcesses">
+            <summary>
+            Processes killed due to job object restrictions.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.JobObject.jobProcesses">
+            <summary>
+            The processes in the job.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsJobObjects.JobObject.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.Utilities.WindowsJobObjects.JobObject"/> class. The Windows Job Object is unnamed.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsJobObjects.JobObject.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.Utilities.WindowsJobObjects.JobObject"/> class. If a Job Object with the specified name exists,
+            then the Job Object is opened; if not, the Job Object with the specified named is opened.
+            </summary>
+            <param name="jobObjectName">Name of the job object.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsJobObjects.JobObject.Finalize">
+            <summary>
+            Finalizes an instance of the JobObject class. Releases unmanaged resources and performs other cleanup operations before the
+            <see cref="T:Uhuru.Utilities.WindowsJobObjects.JobObject"/> is reclaimed by garbage collection.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsJobObjects.JobObject.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsJobObjects.JobObject.AddProcess(System.Diagnostics.Process)">
+            <summary>
+            Adds a process to the current Job Object, for which the Job Object limits apply.
+            </summary>
+            <param name="process">The process to be added.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsJobObjects.JobObject.HasProcess(System.Diagnostics.Process)">
+            <summary>
+            Determines whether the specified process is in the Job Object
+            </summary>
+            <param name="process">The process to be checked for.</param>
+            <returns>
+              <c>true</c> if the specified process has the process; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsJobObjects.JobObject.TerminateProcesses(System.Int32)">
+            <summary>
+            Terminates all the processes in the Job Object.
+            </summary>
+            <param name="exitCode">The exit code.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsJobObjects.JobObject.GetJobProcesses">
+            <summary>
+            Gets all the processes included in the Job Object.
+            </summary>
+            <returns>The list of processes.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsJobObjects.JobObject.Dispose(System.Boolean)">
+            <summary>
+            Releases unmanaged and - optionally - managed resources
+            </summary>
+            <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsJobObjects.JobObject.HasProcess(System.IntPtr)">
+            <summary>
+            Determines whether the specified process handle is included in the Job Object.
+            </summary>
+            <param name="processHandle">The process handle.</param>
+            <returns>
+              <c>true</c> if the specified process handle has process; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsJobObjects.JobObject.AddProcess(System.IntPtr)">
+            <summary>
+            Adds the process handle to the Job object.
+            </summary>
+            <param name="processHandle">The process handle.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsJobObjects.JobObject.QueryProcessIds">
+            <summary>
+            Queries the process ids.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsJobObjects.JobObject.UpdateExtendedLimit">
+            <summary>
+            Updates the extended limit.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsJobObjects.JobObject.QueryBasicAndIoAccounting">
+            <summary>
+            Queries the basic and IO accounting.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsJobObjects.JobObject.QueryExtendedLimitInformation">
+            <summary>
+            Queries the extended limit information.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.KillProcessesOnJobClose">
+            <summary>
+            Gets or sets a value indicating whether to kill the processes when the Job Object is closed.
+            </summary>
+            <value>
+             <c>true</c> if [kill processes on job close]; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.DieOnUnhandledException">
+            <summary>
+            Gets or sets a value indicating whether a process to die on an unhandled exception.
+            </summary>
+            <value>
+             <c>true</c> if [die on unhandled exception]; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.AllowChildProcessesBreakaway">
+            <summary>
+            Gets or sets a value indicating whether processes are allowed to create processes outside the Job Object.
+            </summary>
+            <value>
+             <c>true</c> if [allow child processes breakaway]; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.AlwaysBreakawayChildProcesses">
+            <summary>
+            Gets or sets a value indicating whether child processes are not added to the Job Object.
+            </summary>
+            <value>
+             <c>true</c> if [always breakaway child processes]; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.ActiveProcessesLimit">
+            <summary>
+            Gets or sets the active processes in the Job Object. Set to 0 (zero) to disable the limit.
+            </summary>
+            <value>
+            The active processes.
+            </value>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.ProcessMemoryLimit">
+            <summary>
+            Gets or sets the memory in bytes limit enforced per process. Set to 0 (zero) to disable the limit.
+            </summary>
+            <value>
+            The process memory limit.
+            </value>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.JobMemoryLimit">
+            <summary>
+            Gets or sets the memory limit in bytes of the entire Job Object. Set to 0 (zero) to disable the limit.
+            </summary>
+            <value>
+            The job memory limit.
+            </value>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.ProcessUserTimeLimit">
+            <summary>
+            Gets or sets the process user time limit. It is enforced per process. Set to 0 (zero) to disable the limit.
+            </summary>
+            <value>
+            The process user time limit.
+            </value>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.JobUserTimeLimit">
+            <summary>
+            Gets or sets the Job Object user time limit. Every process user time is accounted. Set to 0 (zero) to disable the limit.
+            </summary>
+            <value>
+            The job user time limit.
+            </value>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.PriorityClass">
+            <summary>
+            Gets or sets the priority class of the Job Object.
+            </summary>
+            <value>
+            The priority class.
+            </value>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.SchedulingClass">
+            <summary>
+            Gets or sets the scheduling class of the JobObject.
+            </summary>
+            <value>
+            The scheduling class.
+            </value>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.Affinity">
+            <summary>
+            Gets or sets the processor affinity, enforced for every process.
+            </summary>
+            <value>
+            The affinity.
+            </value>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.IOReadBytes">
+            <summary>
+            Gets the total IO bytes read by every process in the Job Object.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.IOWriteBytes">
+            <summary>
+            Gets the total IO bytes written by every process in the Job Object.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.IOOtherBytes">
+            <summary>
+            Gets the total IO bytes used in other operations by every process in the Job Object.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.IOReadOperationsCount">
+            <summary>
+            Gets the IO read operations count preformed by every process in the Job Object.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.IOWriteOperationsCount">
+            <summary>
+            Gets the IO write operations count preformed by every process in the Job Object.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.IOOtherOperationsCount">
+            <summary>
+            Gets the other IO operations count preformed by every process in the Job Object.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.PeakJobMemory">
+            <summary>
+            Gets the peak memory in bytes used by the Job Object at any given time.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.PeakProcessMemory">
+            <summary>
+            Gets the peak memory in bytes used by a process.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.TotalProcessorTime">
+            <summary>
+            Gets the total processor time used by each process.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.UserProcessorTime">
+            <summary>
+            Gets the user processor time used by each process.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.KernelProcessorTime">
+            <summary>
+            Gets the kernel processor time used by each process.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.TotalProcesses">
+            <summary>
+            Gets the total processes that was in the job object.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.ActiveProcesses">
+            <summary>
+            Gets active processes in the job object.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.TotalTerminatedProcesses">
+            <summary>
+            Gets processes killed due to job object restrictions.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.WorkingSetMemory">
+            <summary>
+            Gets the working set memory in bytes of the Job Object.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.VirtualMemory">
+            <summary>
+            Gets the virtual memory in bytes.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.PrivateMemory">
+            <summary>
+            Gets the private memory in bytes.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.PagedMemory">
+            <summary>
+            Gets the paged memory in bytes.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.PagedSystemMemory">
+            <summary>
+            Gets the paged system memory in bytes.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.WindowsJobObjects.JobObject.NonPagedSystemMemory">
+            <summary>
+            Gets the non paged system memory in bytes.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.TimerCallback">
+            <summary>
+            Delegate definition that refers to a method to be called when a timer tick occurs.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.TimerHelper">
+            <summary>
+            This is a helper class that provides the developer with easy methods of creating timers.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.TimerHelper.DelayedCall(System.Double,Uhuru.Utilities.TimerCallback)">
+            <summary>
+            This method creates a timer that ticks only once and runs a callback method.
+            This method is non-blocking.
+            </summary>
+            <param name="delay">A double specifying the amount of time to sleep before calling the callback method.</param>
+            <param name="callback">A method that gets called when the timer ticks.</param>
+            <returns>The timer that is used to delay the call to the callback method.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.TimerHelper.RecurringCall(System.Double,Uhuru.Utilities.TimerCallback)">
+            <summary>
+            This method creates a timer that ticks forever, and on each tick it calls a callback method.
+            This method is non-blocking.
+            </summary>
+            <param name="delay">A double specifying the interval between each tick.</param>
+            <param name="callback">A method that gets called when the timer ticks.</param>
+            <returns>The timer that is created.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.TimerHelper.RecurringLongCall(System.Double,Uhuru.Utilities.TimerCallback)">
+            <summary>
+            This method creates a timer that ticks once, and on each tick it calls a callback method.
+            After each call to the callback method, the timer is reset.
+            This method is non-blocking.
+            </summary>
+            <param name="delay">A double specifying the interval between each call of the callback method.</param>
+            <param name="callback">A method that gets called when the timer ticks.</param>
+            <returns>The timer that is created.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.DiskUsageEntry">
+            <summary>
+            This class contains disk usage information.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.DiskUsageEntry.readableSize">
+            <summary>
+            Directory size as a human readable string.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.DiskUsageEntry.sizeKB">
+            <summary>
+            Directory size in kilobytes.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.DiskUsageEntry.directory">
+            <summary>
+            The path to the directory.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.DiskUsageEntry.#ctor(System.String,System.Int64,System.String)">
+            <summary>
+            Initializes a new instance of the DiskUsageEntry class.
+            </summary>
+            <param name="readableSize">Directory size as a human readable string.</param>
+            <param name="size">Directory size in kilobytes.</param>
+            <param name="directory">The directory path.</param>
+        </member>
+        <member name="P:Uhuru.Utilities.DiskUsageEntry.ReadableSize">
+            <summary>
+            Gets the directory size as a human readable string.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.DiskUsageEntry.SizeKB">
+            <summary>
+            Gets the directory size in kilobytes.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.DiskUsageEntry.Directory">
+            <summary>
+            Gets the directory path.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.WindowsVCAPUsers">
+            <summary>
+            This is a helper class for creating Windows Users.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsVCAPUsers.UserDecoration">
+            <summary>
+            A prefix that is appended to all created Windows users.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsVCAPUsers.CreateDecoratedUser(System.String,System.String)">
+            <summary>
+            Creates a user based on an id. The created user has a prefix added to it.
+            </summary>
+            <param name="id">An id for the username.</param>
+            <param name="password">A password for the user. Make sure it's strong.</param>
+            <returns>The final username of the newly created Windows User.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsVCAPUsers.CreateUser(System.String,System.String)">
+            <summary>
+            Creates a user based on an id.
+            </summary>
+            <param name="id">An id for the username.</param>
+            <param name="password">A password for the user. Make sure it's strong.</param>
+            <returns>The final username of the newly created Windows User.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsVCAPUsers.DeleteDecoratedBasedUser(System.String)">
+            <summary>
+            Deletes a windows user based on an Id.
+            </summary>
+            <param name="id">The id that was used to create the user.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsVCAPUsers.DeleteUser(System.String)">
+            <summary>
+            Deletes a windows user based on an Id.
+            </summary>
+            <param name="id">The id that was used to create the user.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsVCAPUsers.DecorateUser(System.String)">
+            <summary>
+            Returns a string that is unique for a given user.
+            </summary>
+            <param name="id"> The id of the user. </param>
+            <returns> The unique string.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.WindowsShareException">
+            <summary>
+            Exception Class for Windows Share tool.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsShareException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.Utilities.WindowsShareException"/> class.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsShareException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.Utilities.WindowsShareException"/> class.
+            </summary>
+            <param name="message">The message.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsShareException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.Utilities.WindowsShareException"/> class.
+            </summary>
+            <param name="message">The message.</param>
+            <param name="inner">The inner.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsShareException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.Utilities.WindowsShareException"/> class.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> that holds the serialized object data about the exception being thrown.</param>
+            <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext"/> that contains contextual information about the source or destination.</param>
+            <exception cref="T:System.ArgumentNullException">The <paramref name="info"/> parameter is null. </exception>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">The class name is null or <see cref="P:System.Exception.HResult"/> is zero (0). </exception>
+        </member>
+        <member name="T:Uhuru.Utilities.FileLogger">
+            <summary>
+            This is a helper logger class that writes to a file.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.FileLogger.fileName">
+            <summary>
+            The path to the log file.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.FileLogger.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.Utilities.FileLogger"/> class.
+            </summary>
+            <param name="fileName">The file in which log events will be written.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FileLogger.Fatal(System.String)">
+            <summary>
+            Logs a fatal message.
+            This indicates a really severe error, that will probably make the application crash.
+            </summary>
+            <param name="message">The message to be logged.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FileLogger.Error(System.String)">
+            <summary>
+            Logs an error message.
+            This indicates an error, but the application may be able to continue.
+            </summary>
+            <param name="message">The message to be logged.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FileLogger.Warning(System.String)">
+            <summary>
+            Logs a warning message.
+            This indicates a situation that could lead to some bad things.
+            </summary>
+            <param name="message">The message to be logged.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FileLogger.Info(System.String)">
+            <summary>
+            Logs an information message.
+            The message is used to indicate some progress.
+            </summary>
+            <param name="message">The message to be logged.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FileLogger.Debug(System.String)">
+            <summary>
+            Logs a debug message.
+            This is an informational message, that is useful when debugging.
+            </summary>
+            <param name="message">The message to be logged.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FileLogger.Fatal(System.String,System.Object[])">
+            <summary>
+            Logs a fatal message and formats it.
+            This indicates a really severe error, that will probably make the application crash.
+            </summary>
+            <param name="message">The message to be logged.</param>
+            <param name="args">The arguments used for formatting.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FileLogger.Error(System.String,System.Object[])">
+            <summary>
+            Logs an error message and formats it.
+            This indicates an error, but the application may be able to continue.
+            </summary>
+            <param name="message">The message to be logged.</param>
+            <param name="args">The arguments used for formatting.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FileLogger.Warning(System.String,System.Object[])">
+            <summary>
+            Logs a warning message and formats it.
+            This indicates a situation that could lead to some bad things.
+            </summary>
+            <param name="message">The message to be logged.</param>
+            <param name="args">The arguments used for formatting.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FileLogger.Info(System.String,System.Object[])">
+            <summary>
+            Logs an information message and formats it.
+            The message is used to indicate some progress.
+            </summary>
+            <param name="message">The message to be logged.</param>
+            <param name="args">The arguments used for formatting.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FileLogger.Debug(System.String,System.Object[])">
+            <summary>
+            Logs a debug message and formats it.
+            This is an informational message, that is useful when debugging.
+            </summary>
+            <param name="message">The message to be logged.</param>
+            <param name="args">The arguments used for formatting.</param>
+        </member>
+        <member name="T:Uhuru.Utilities.SystemHosts">
+            <summary>
+            Utility for modifying the windows system hosts file.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.SystemHosts.Add(System.String,System.String)">
+            <summary>
+            Adds the specified unique hostname.
+            </summary>
+            <param name="hostName">The hostname.</param>
+            <param name="ipAddress">The ip address.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.SystemHosts.TryRemove(System.String)">
+            <summary>
+            Tries the remove the specified host name.
+            </summary>
+            <param name="hostName">The hostname.</param>
+            <returns>True if removal was successful.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.SystemHosts.Exists(System.String)">
+            <summary>
+            Check is the host is present in etc\hosts.
+            </summary>
+            <param name="hostName">The hostname.</param>
+            <returns>
+            True if the host is present.
+            </returns>
+        </member>
+        <member name="P:Uhuru.Utilities.SystemHosts.HostsFilePath">
+            <summary>
+            Gets the hosts file path.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.WindowsUsersAndGroups">
+            <summary>
+            This is a helper class for managing Windows Users and Groups.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsUsersAndGroups.CreateUser(System.String,System.String)">
+            <summary>
+            Creates a Windows user.
+            </summary>
+            <param name="userName">Name of the user.</param>
+            <param name="password">The password.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsUsersAndGroups.CreateUser(System.String,System.String,System.String)">
+            <summary>
+            Creates a Windows user.
+            </summary>
+            <param name="userName">Name of the user.</param>
+            <param name="password">The password.</param>
+            <param name="description">The description for the user.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsUsersAndGroups.DeleteUser(System.String)">
+            <summary>
+            Deletes the user.
+            </summary>
+            <param name="userName">Name of the user.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsUsersAndGroups.CreateGroup(System.String)">
+            <summary>
+            Creates a Windows group.
+            </summary>
+            <param name="groupName">Name of the group.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsUsersAndGroups.CreateGroup(System.String,System.String)">
+            <summary>
+            Creates a Windows group.
+            </summary>
+            <param name="groupName">Name of the group.</param>
+            <param name="description">The description for the group.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsUsersAndGroups.DeleteGroup(System.String)">
+            <summary>
+            Deletes the group.
+            </summary>
+            <param name="groupName">Name of the group.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsUsersAndGroups.AddUserToGroup(System.String,System.String)">
+            <summary>
+            Adds a user to a group.
+            </summary>
+            <param name="userName">Name of the user.</param>
+            <param name="groupName">Name of the group.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsUsersAndGroups.RemoveUserFromGroup(System.String,System.String)">
+            <summary>
+            Removes a user from a group.
+            </summary>
+            <param name="userName">Name of the user.</param>
+            <param name="groupName">Name of the group.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsUsersAndGroups.IsUserMemberOfGroup(System.String,System.String)">
+            <summary>
+            Determines whether [is user member of group] [the specified user name].
+            </summary>
+            <param name="userName">Name of the user.</param>
+            <param name="groupName">Name of the group.</param>
+            <returns>
+              <c>true</c> if [is user member of group] [the specified user name]; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="T:Uhuru.Utilities.ProcessUser">
+            <summary>
+            Windows User information about a Process.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessUser.GetProcessWindowsIdentity(System.Diagnostics.Process)">
+            <summary>
+            Gets the WindowsIdentity associated with the process.
+            </summary>
+            <param name="process">The process.</param>
+            <returns>Windows Identity of the Process</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessUser.GetProcessUser(System.Diagnostics.Process)">
+            <summary>
+            Gets the Windows user name associated with the process.
+            </summary>
+            <param name="process">The process.</param>
+            <returns>Windows User of the Process</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessUser.GetProcessTokenHandle(System.Diagnostics.Process)">
+            <summary>
+            Gets the Access Token Handle associated with the process.
+            </summary>
+            <param name="process">The process.</param>
+            <returns>Access Token Handle of the Process</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.ProcessUser.NativeMethods">
+            <summary>
+            The Windows API functions.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessUser.NativeMethods.STANDARD_RIGHTS_REQUIRED">
+            <summary>
+            Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessUser.NativeMethods.STANDARD_RIGHTS_READ">
+            <summary>
+            Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessUser.NativeMethods.TOKEN_ASSIGN_PRIMARY">
+            <summary>
+            Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessUser.NativeMethods.TOKEN_DUPLICATE">
+            <summary>
+            Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessUser.NativeMethods.TOKEN_IMPERSONATE">
+            <summary>
+            Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessUser.NativeMethods.TOKEN_QUERY">
+            <summary>
+            Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessUser.NativeMethods.TOKEN_QUERY_SOURCE">
+            <summary>
+            Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessUser.NativeMethods.TOKEN_ADJUST_PRIVILEGES">
+            <summary>
+            Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessUser.NativeMethods.TOKEN_ADJUST_GROUPS">
+            <summary>
+            Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessUser.NativeMethods.TOKEN_ADJUST_DEFAULT">
+            <summary>
+            Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessUser.NativeMethods.TOKEN_ADJUST_SESSIONID">
+            <summary>
+            Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessUser.NativeMethods.TOKEN_READ">
+            <summary>
+            Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessUser.NativeMethods.TOKEN_ALL_ACCESS">
+            <summary>
+            Windows API constant.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.LoadAssemblyHelper">
+            <summary>
+            This class is injected at runtime in a new app domain, and used to get the .Net version of an assembly.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.LoadAssemblyHelper.GetDotNetVersion(System.String)">
+            <summary>
+            Gets the dot net version of a sepcified assembly.
+            </summary>
+            <param name="assemblyPath">The assembly path.</param>
+            <returns>A string containing the .Net version of the assembly.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.LoadAssemblyHelper.DetectPlatform(System.String)">
+            <summary>
+            Detects the platform.
+            </summary>
+            <param name="assemblyPath">The assembly path.</param>
+            <returns>CPU target</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.WindowsShare">
+            <summary>
+            Windows Share utility class.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsShare.shareName">
+            <summary>
+            The name of the share.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsShare.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.Utilities.WindowsShare"/> class.
+            </summary>
+            <param name="shareName">Name of the share.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsShare.CreateShare(System.String,System.String)">
+            <summary>
+            Creates the share.
+            </summary>
+            <param name="shareName">Name of the share.</param>
+            <param name="folderPath">The folder path.</param>
+            <returns>WindwsShare instance.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsShare.GetShare(System.String)">
+            <summary>
+            Gets the share by name.
+            </summary>
+            <param name="shareName">Name of the share.</param>
+            <returns>The WindowsShare instance.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsShare.GetShares">
+            <summary>
+            Gets the shares.
+            </summary>
+            <returns>The WindowsShare instances.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsShare.DeleteShare">
+            <summary>
+            Deletes the share.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsShare.AddSharePermissions(System.String)">
+            <summary>
+            Adds the share permissions.
+            </summary>
+            <param name="accountName">Name of the account.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsShare.DeleteSharePermission(System.String)">
+            <summary>
+            Deletes the share permission.
+            </summary>
+            <param name="accountName">Name of the account.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsShare.GetSharePermissions">
+            <summary>
+            Gets the share permissions.
+            </summary>
+            <returns>The Names of the Trustees.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.UserImpersonator">
+            <summary>
+            Impersonation of a user. Allows to execute code under another
+            user context.
+            Please note that the account that instantiates the Impersonator class
+            needs to have the 'Act as part of operating system' privilege set.
+            </summary>
+            <remarks>
+            This class is based on the information in the Microsoft knowledge base
+            article http://support.microsoft.com/default.aspx?scid=kb;en-us;Q306158
+            Encapsulate an instance into a using-directive like e.g.:
+            </remarks>
+        </member>
+        <member name="F:Uhuru.Utilities.UserImpersonator.Logon32LogonInteractive">
+            <summary>
+            Interactive logon.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.UserImpersonator.Logon32ProviderDefault">
+            <summary>
+            Default logon provider.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.UserImpersonator.impersonationContext">
+            <summary>
+            Impersonation context.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.UserImpersonator.#ctor(System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            Initializes a new instance of the UserImpersonator class.
+            Starts the impersonation with the given credentials.
+            Please note that the account that instantiates the Impersonator class
+            needs to have the 'Act as part of operating system' privilege set.
+            </summary>
+            <param name="userName">The name of the user to act as.</param>
+            <param name="domainName">The domain name of the user to act as.</param>
+            <param name="password">The password of the user to act as.</param>
+            <param name="loadUserProfile">if set to <c>true</c> [load user profile].</param>
+        </member>
+        <member name="M:Uhuru.Utilities.UserImpersonator.DeleteUserProfile(System.String,System.String)">
+            <summary>
+            Deletes the user profile.
+            </summary>
+            <param name="userName">Name of the user.</param>
+            <param name="password">The password.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.UserImpersonator.Dispose">
+            <summary>
+            Disposes the current object.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.UserImpersonator.ImpersonateValidUser(System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            Does the actual impersonation.
+            </summary>
+            <param name="userName">The name of the user to act as.</param>
+            <param name="domain">The domain name of the user to act as.</param>
+            <param name="password">The password of the user to act as.</param>
+            <param name="loadUserProfile">if set to <c>true</c> [load user profile].</param>
+        </member>
+        <member name="M:Uhuru.Utilities.UserImpersonator.UndoImpersonation">
+            <summary>
+            Reverts the impersonation.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.UserImpersonator.ProfileInfo">
+            <summary>
+            Profile Info structure.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.UserImpersonator.ProfileInfo.Size">
+            <summary>
+            Structure filed.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.UserImpersonator.ProfileInfo.Flags">
+            <summary>
+            Structure filed.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.UserImpersonator.ProfileInfo.UserName">
+            <summary>
+            Structure filed.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.UserImpersonator.ProfileInfo.ProfilePath">
+            <summary>
+            Structure filed.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.UserImpersonator.ProfileInfo.DefaultPath">
+            <summary>
+            Structure filed.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.UserImpersonator.ProfileInfo.ServerName">
+            <summary>
+            Structure filed.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.UserImpersonator.ProfileInfo.PolicyPath">
+            <summary>
+            Policy path filed.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.UserImpersonator.ProfileInfo.Profile">
+            <summary>
+            Profile field.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.WindowsJobObjects.JobObjectHandle">
+            <summary>
+            A safe handle for Job Object.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsJobObjects.JobObjectHandle.#ctor">
+            <summary>
+            Prevents a default instance of the <see cref="T:Uhuru.Utilities.WindowsJobObjects.JobObjectHandle"/> class from being created.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsJobObjects.JobObjectHandle.ReleaseHandle">
+            <summary>
+            When overridden in a derived class, executes the code required to free the handle.
+            </summary>
+            <returns>
+            true if the handle is released successfully; otherwise, in the event of a catastrophic failure, false. In this case, it generates a releaseHandleFailed MDA Managed Debugging Assistant.
+            </returns>
+        </member>
+        <member name="T:Uhuru.Utilities.RubyCompatibility">
+            <summary>
+            This is a helper class that containg methods useful for converting .Net variables to Ruby formats.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeToEpochSeconds(System.DateTime)">
+            <summary>
+            This method converts a DateTime to its equivalent in number of seconds from the Epoch - 1st of January 1970.
+            </summary>
+            <param name="date">DateTime to be converted.</param>
+            <returns>An int containing the number of seconds.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeFromEpochSeconds(System.Int32)">
+            <summary>
+            This method converts a number of seconds from the Epoch (1st of January 1970) to a DateTime value.
+            </summary>
+            <param name="seconds">An int containing the number of seconds.</param>
+            <returns>A DateTime containing the converted value.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeToRubyString(System.DateTime)">
+            <summary>
+            This method converts a DateTime value to a Ruby Time string (yyyy-MM-dd HH:mm:ss zzz).
+            </summary>
+            <param name="date">The DateTime to be converted.</param>
+            <returns>A string with the formatted date and time.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeFromRubyString(System.String)">
+            <summary>
+            This method converts a Ruby Time string (yyyy-MM-dd HH:mm:ss zzz) to a .Net DateTime.
+            </summary>
+            <param name="date">A string containing the formatted date and time.</param>
+            <returns>A DateTime containing the converted value.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.NetworkInterface">
+            <summary>
+            Helper class used to retrieve a local ip; this is useful when the machine has multiple NICs
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.NetworkInterface.GetLocalIPAddress">
+            <summary>
+            Get an IP using 198.41.0.4 as a target for openining a socket.
+            </summary>
+            <returns>The IP used by the OS to connect to 198.41.0.4</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.NetworkInterface.GetLocalIPAddress(System.String)">
+            <summary>
+            Returns the IP used by the OS to connect to the RouteIPAddress.
+            Pointing to a interface address will return that address.
+            </summary>
+            <param name="routeIPAddress">The route IP address.</param>
+            <returns>The local IP address.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.NetworkInterface.GrabEphemeralPort">
+            <summary>
+            This method returns a free port.
+            </summary>
+            <returns>An int that is the free port.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.HealthzRequestEventArgs">
+            <summary>
+            This is an EventArgs class used by the Healthz and Varz server.
+            When the server needs healthz information, it raises an event.
+            The subscriber to that event sets the message of these args.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.HealthzRequestEventArgs.healthzMessage">
+            <summary>
+            The health JSON message
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.HealthzRequestEventArgs.HealthzMessage">
+            <summary>
+            Gets or sets the healthz message that will be served by the server.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.CpuTarget">
+            <summary>
+            CPU Platform target
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.CpuTarget.AnyCpu">
+            <summary>
+            Any Cpu
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.CpuTarget.X86">
+            <summary>
+            32 bit platform
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.CpuTarget.X64">
+            <summary>
+            64 bit platform
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.CpuTarget.Unknown">
+            <summary>
+            cannot be determined
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.PlatformTarget">
+            <summary>
+            Class used for detecting platform target of an assembly
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.PlatformTarget.DetectPlatform(System.String)">
+            <summary>
+            Detects the platform.
+            </summary>
+            <param name="assemblyPath">The assembly path.</param>
+            <returns>CPU target</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.SaveCredentials">
+            <summary>
+            Utility class for adding credentials in credential manager.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.SaveCredentials.AddDomainUserCredential(System.String,System.String,System.String)">
+            <summary>
+            Adds the domain user credential.
+            </summary>
+            <param name="target">The target.</param>
+            <param name="userName">Name of the user.</param>
+            <param name="password">The password.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.SaveCredentials.CredWrite(Uhuru.Utilities.SaveCredentials.Credential@,System.UInt32)">
+            <summary>
+            Credentials the write.
+            </summary>
+            <param name="userCredential">The user credential.</param>
+            <param name="flags">The flags.</param>
+            <returns>True if the method executed successfully.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.SaveCredentials.CRED_TYPE">
+            <summary>
+            Credential type.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.SaveCredentials.CRED_TYPE.CRED_TYPE_GENERIC">
+            <summary>
+            Generic credential.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.SaveCredentials.CRED_TYPE.CRED_TYPE_DOMAIN_PASSWORD">
+            <summary>
+            Domain password.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.SaveCredentials.CRED_TYPE.CRED_TYPE_DOMAIN_CERTIFICATE">
+            <summary>
+            Domain certificate.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.SaveCredentials.CRED_TYPE.CRED_TYPE_DOMAIN_VISIBLE_PASSWORD">
+            <summary>
+            Domain visible password.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.SaveCredentials.CRED_PERSIST">
+            <summary>
+            Credential persistence.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.SaveCredentials.CRED_PERSIST.CRED_PERSIST_SESSION">
+            <summary>
+            Session persistence.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.SaveCredentials.CRED_PERSIST.CRED_PERSIST_LOCAL_MACHINE">
+            <summary>
+            Local machine persistence.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.SaveCredentials.CRED_PERSIST.CRED_PERSIST_ENTERPRISE">
+            <summary>
+            Enterprise persistence.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.SaveCredentials.Credential">
+            <summary>
+            Credential structure.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.SaveCredentials.Credential.Flags">
+            <summary>
+            Flags field.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.SaveCredentials.Credential.Type">
+            <summary>
+            Type field.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.SaveCredentials.Credential.TargetName">
+            <summary>
+            Target name.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.SaveCredentials.Credential.Comment">
+            <summary>
+            Comment field.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.SaveCredentials.Credential.LastWritten">
+            <summary>
+            Last written.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.SaveCredentials.Credential.CredentialBlobSize">
+            <summary>
+            Size of password.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.SaveCredentials.Credential.CredentialBlob">
+            <summary>
+            The password.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.SaveCredentials.Credential.Persist">
+            <summary>
+            Persistence type.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.SaveCredentials.Credential.AttributeCount">
+            <summary>
+            Attributes count.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.SaveCredentials.Credential.CredAttribute">
+            <summary>
+            Credential attributes.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.SaveCredentials.Credential.TargetAlias">
+            <summary>
+            Target alias.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.SaveCredentials.Credential.UserName">
+            <summary>
+            User name filed.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.ProcessPerformance.NativeMethods">
+            <summary>
+            exposes a few WinAPI methods for working with processes
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.NativeMethods.ProcessAllAccess">
+            <summary>
+            This tells OpenProcess that we want all possible access rights for a process object.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.NativeMethods.ProcessHandleError">
+            <summary>
+            This is an IntPtr that looks like an error response. We use it for comparison.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.NativeMethods.ProcessHandleZero">
+            <summary>
+            This is an IntPtr that looks like an error response. We use it for comparison.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessPerformance.NativeMethods.CloseHandle(System.IntPtr)">
+            <summary>
+            Closes handles.
+            </summary>
+            <param name="handle">The handle to close.</param>
+            <returns>A boolean value indicating whether the operation was successful.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessPerformance.NativeMethods.OpenProcess(System.UInt32,System.Boolean,System.UInt32)">
+            <summary>
+            gets the process handle
+            </summary>
+            <param name="desiredAccess">the access level we want to obtain</param>
+            <param name="inheritHandle">if this is true, child processes will inherit this handle</param>
+            <param name="processId">the process ID</param>
+            <returns>a process handle</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessPerformance.NativeMethods.GetProcessTimes(System.IntPtr,System.Runtime.InteropServices.ComTypes.FILETIME@,System.Runtime.InteropServices.ComTypes.FILETIME@,System.Runtime.InteropServices.ComTypes.FILETIME@,System.Runtime.InteropServices.ComTypes.FILETIME@)">
+            <summary>
+            gets the process creation, exit, kernel and user time 
+            </summary>
+            <param name="processHandle">the handle of the process</param>
+            <param name="creationTime">the creation time</param>
+            <param name="exitTime">the exit time</param>
+            <param name="kernelTime">the kernel time</param>
+            <param name="userTime">the user time</param>
+            <returns>True if the operation was successful</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.Json.JsonNameAttribute">
+            <summary>
+            This is an attribute that is used to decorate fields/properties/enums with JSON names.
+            The JSON name will be used instead of the member's name when serializing.
+            This is used in conjunction <see cref="T:Uhuru.Utilities.Json.JsonConvertibleObject"/>.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.Json.JsonNameAttribute.name">
+            <summary>
+            The JSON name of the member.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.Json.JsonNameAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.Utilities.Json.JsonNameAttribute"/> class.
+            </summary>
+            <param name="name">The JSON name of the member.</param>
+        </member>
+        <member name="P:Uhuru.Utilities.Json.JsonNameAttribute.Name">
+            <summary>
+            Gets the Name of the member.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.DiskUsage">
+            <summary>
+            This class is used to get disk usage information for a directory.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.DiskUsage.GetDiskUsage(System.String,System.Boolean)">
+            <summary>
+            Gets disk usage information for a directory.
+            </summary>
+            <param name="directory">Specifies the directory where to look for objects</param>
+            <param name="summary">Whether to summarize the result (show only direct children), or display all descendats.</param>
+            <returns>An array of DiskUsageEntry objects.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.DiskUsage.WriteDiskUsageToFile(System.String,System.String,System.Boolean)">
+            <summary>
+            Writes disk usage information to a file.
+            </summary>
+            <param name="fileName">The file where to write the data.</param>
+            <param name="directory">The directory for which to retrieve disk usage.</param>
+            <param name="summary">Boolean value specifying whether to include information about all descendant directories.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.DiskUsage.GetDirectorySize(System.String,System.Boolean,System.Collections.Generic.Dictionary{System.String,System.Int64},System.Object)">
+            <summary>
+            Gets a directory size, in kilobytes.
+            </summary>
+            <param name="directory">A string specifying the path of the directory.</param>
+            <param name="recurse">A boolean value specifying whether to include child directories.</param>
+            <param name="objects">A dictionary in which all the sizes of the objects (file or directory) are added. If it's null, it won't be used.</param>
+            <param name="objectsLock">An object used for locking the dictionary.</param>
+            <returns>The size of the directory, in kilobytes.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.DiskUsage.GetFileSize(System.String)">
+            <summary>
+            gets the size, in bytes, of a file
+            </summary>
+            <param name="file">the name of the file</param>
+            <returns>the size of the file, in kilobytes</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.DiskUsage.GetReadableForm(System.Int64)">
+            <summary>
+            converts a numeric file size into a human readable one
+            </summary>
+            <param name="size">the size to convert (in KB) (e.g. 1024)</param>
+            <returns>a nicely formatted string (e.g. 1024 KB = 1MB)</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.ProcessPerformance.ProcessData">
+            <summary>
+            This class contains process data.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessData.processId">
+            <summary>
+            The ID of the process.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessData.name">
+            <summary>
+            The name of the process.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessData.cpu">
+            <summary>
+            The CPU usage of the process.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessData.oldUserTime">
+            <summary>
+            The number of user cycles of the process on the last snapshot.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessData.oldKernelTime">
+            <summary>
+            The number of kernel cycles of the process on the last snapshot.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessData.oldUpdate">
+            <summary>
+            The time of the last snapshot.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessData.workingSetBytes">
+            <summary>
+            The memory usage of the process.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessPerformance.ProcessData.#ctor(System.Int32,System.String,System.Int64,System.Int64,System.Int64)">
+            <summary>
+            Initializes a new instance of the ProcessData class
+            </summary>
+            <param name="id">the process ID</param>
+            <param name="name">the name of the process</param>
+            <param name="oldUserTime">the user time</param>
+            <param name="oldKernelTime">the kernel time</param>
+            <param name="workingSetBytes">memory usage for the process</param>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessPerformance.ProcessData.UpdateCpuUsage(System.Int64,System.Int64)">
+            <summary>
+            updates the cpu usage (cpu usage = UserTime + KernelTime) 
+            </summary>
+            <param name="newUserTime">the new user time</param>
+            <param name="newKernelTime">the new kernel time</param>
+            <returns>the raw usage</returns>
+        </member>
+        <member name="P:Uhuru.Utilities.ProcessPerformance.ProcessData.ProcessId">
+            <summary>
+            Gets or sets the process id.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.ProcessPerformance.ProcessData.Name">
+            <summary>
+            Gets or sets the name of the process.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.ProcessPerformance.ProcessData.Cpu">
+            <summary>
+            Gets or sets the CPU usage of the process, as a percentage.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.ProcessPerformance.ProcessData.WorkingSetBytes">
+            <summary>
+            Gets or sets the memory amount used by the process.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.SambaWindowsClient">
+            <summary>
+            This class contains helper functions for mounting a share as a local directory.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.SambaWindowsClient.CreateFileSymbolicLink(System.String,System.String)">
+            <summary>
+            Creates the file symbolic link.
+            </summary>
+            <param name="sourceFileName">Name of the source file.</param>
+            <param name="targetFileName">Name of the target file.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.SambaWindowsClient.CreateDirectorySymbolicLink(System.String,System.String)">
+            <summary>
+            Creates the directory symbolic link.
+            </summary>
+            <param name="sourceDirectoryName">Name of the source directory.</param>
+            <param name="targetDirectoryName">Name of the target directory.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.SambaWindowsClient.Mount(System.String,System.String,System.String)">
+            <summary>
+            Mounts a remote share as a local directory.
+            </summary>
+            <param name="remotePath">The remote path.</param>
+            <param name="remoteUser">A username used for authentication to the share.</param>
+            <param name="remotePassword">A password used for authentication to the share.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.SambaWindowsClient.LinkDirectory(System.String,System.String)">
+            <summary>
+            Make a link.
+            </summary>
+            <param name="remotePath">The remote path.</param>
+            <param name="localPath">The local path that will be the mount point.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.SambaWindowsClient.Unmount(System.String)">
+            <summary>
+            Un-mounts a local path.
+            </summary>
+            <param name="remotePath">The remote path.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.SambaWindowsClient.UnmountAll">
+            <summary>
+            Un-mounts a local path.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.SambaWindowsClient.Link(System.String,System.String,System.String)">
+            <summary>
+            Persists a resource on a mounted share, and then links it.
+            This method will make sure the folder and file structure remains the same on the local file system, while also persisting data on a share.
+            </summary>
+            <param name="instancePath">The directory considered to be the "root" of the resources that have to be persisted.</param>
+            <param name="persistentItem">The directory or file that has to be persisted.</param>
+            <param name="mountPath">The mounted directory that points to a share.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.SambaWindowsClient.CreateSymbolicLink(System.String,System.String,System.Int32)">
+            <summary>
+            Creates the symbolic link.
+            </summary>
+            <param name="symlinkFileName">Name of the symlink file.</param>
+            <param name="targetFileName">Name of the target file.</param>
+            <param name="flags">The flags. 0 for files and 1 for directories.</param>
+            <returns>
+            Returns 1 if successful.
+            </returns>
+        </member>
+        <member name="M:Uhuru.Utilities.SambaWindowsClient.ExecuteCommand(System.String)">
+            <summary>
+            Runs a process and waits for it to return.
+            </summary>
+            <param name="command">The command.</param>
+            <returns>
+            Process return code
+            </returns>
+        </member>
+        <member name="M:Uhuru.Utilities.SambaWindowsClient.CopyFolderRecursively(System.String,System.String)">
+            <summary>
+            Copies a directory recursively, without overwriting.
+            </summary>
+            <param name="source">Source folder to copy.</param>
+            <param name="destination">Destination folder.</param>
+        </member>
+        <member name="T:Uhuru.Utilities.Json.JsonConvertibleObject">
+            <summary>
+            This object is used for serialization/deserialization of objects into/from JSON.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.DeserializeFromJsonArray(System.String)">
+            <summary>
+            Deserializes a json string that is supposed to contain an array (i.e. [{"field1" : "value1"}, "value2", 0])
+            </summary>
+            <param name="json">The json string.</param>
+            <returns>An array of objects</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.DeserializeFromJson(System.String)">
+            <summary>
+            Deserializes json string that is supposed to contain an object (i.e. {"field1" : "value1"}).
+            </summary>
+            <param name="json">The json string.</param>
+            <returns>An object.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.SerializeToJson(System.Object)">
+            <summary>
+            Serializes an intermediate object (a Dictionary&lt;string, object&gt; or a newtonsoft JObject) to a JSON string.
+            </summary>
+            <param name="intermediateValue">A Dictionary&lt;string, object&gt; or a newtonsoft JObject.</param>
+            <returns>The JSON string.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.ObjectToValue``1(System.Object)">
+            <summary>
+            Converts an object into another type.
+            If the object is a JObject or JArray, this method uses their respective methods for conversion.
+            Otherwise, it uses Convert.ChangeType.
+            </summary>
+            <typeparam name="T">The type to convert to.</typeparam>
+            <param name="value">The object to convert.</param>
+            <returns>The converted object.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.SerializeToJson">
+            <summary>
+            Serializes the instance to a JSON string.
+            </summary>
+            <returns>The JSON string.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.ToJsonIntermediateObject">
+            <summary>
+            Converts this instance to a Dictionary&lt;string, object&gt; that is ready to be serialized to a Ruby-compatible JSON.
+            </summary>
+            <returns>A Dictionary&lt;string, object&gt;</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.FromJsonIntermediateObject(System.Object)">
+            <summary>
+            Goes through a deserialized JSON object (a Dictionary&lt;string, object&gt; or a newtonsoft JObject) and updates all field an properties of this instance.
+            </summary>
+            <param name="value">The value.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.ConvertMember(System.Object,System.Type)">
+            <summary>
+            Converts an individual member.
+            </summary>
+            <param name="memberValue">The member value.</param>
+            <param name="memberType">Type of the member.</param>
+            <returns>The converted memeber.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.GetEnumValueFromString(System.Type,System.String)">
+            <summary>
+            Gets an enum value from a string. The method first tries to match the string value to any defined JsonName attributes, then defaults to Enum.Parse.
+            </summary>
+            <param name="enumType">Type of the enum.</param>
+            <param name="enumValue">The enum value.</param>
+            <returns>The parsed enum value.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.SetMemberValue(System.Reflection.MemberInfo,System.Object)">
+            <summary>
+            Sets a member's value.
+            </summary>
+            <param name="member">The member (can be a field or a property).</param>
+            <param name="value">The value.</param>
+        </member>
+        <member name="T:Uhuru.Utilities.Strings">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.Strings.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.Strings.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.Strings.UnableToCreateJunctionPoint">
+            <summary>
+              Looks up a localized string similar to Unable to create junction point.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.Strings.UnableToDeleteJunctionPoint">
+            <summary>
+              Looks up a localized string similar to Unable to delete junction point.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.Strings.UnableToGetJunctionInformation">
+            <summary>
+              Looks up a localized string similar to Unable to get information about junction point..
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.Strings.UnableToOpenReparsePoint">
+            <summary>
+              Looks up a localized string similar to Unable to open reparse point..
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.Strings.UnhandledExceptionCaught">
+            <summary>
+              Looks up a localized string similar to Unhandled exception caught in ElapsedEventHandler: {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.Strings.UnhandledExceptionCaught2">
+            <summary>
+              Looks up a localized string similar to Unhandled exception caught in ElapsedEventHandler.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.ProcessPerformance.ProcessInformation">
+            <summary>
+            This is a helper class used to get CPU and memory usage information for processes.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessInformation.SnapshotCount">
+            <summary>
+            Number of snapshots to take.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessPerformance.ProcessInformation.GetProcessUsage(System.Int32)">
+            <summary>
+            Gets process usage information for a process.
+            </summary>
+            <param name="processId">The process id for which to get the data.</param>
+            <returns>A ProcessData object containing metrics.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessPerformance.ProcessInformation.GetProcessUsage">
+            <summary>
+            Gets process usage information for the processes on the local machine.
+            </summary>
+            <returns>An array of ProcessData objects.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.FileServer">
+            <summary>
+            This class implements an http server that serves files from local storage.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.FileServer.TableRowSize">
+            <summary>
+            Table row size for directory listing.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.FileServer.serverPort">
+            <summary>
+            Port on which the file server is listening.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.FileServer.serverPhysicalPath">
+            <summary>
+            Path to the directory served by the server.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.FileServer.serverVirtualPath">
+            <summary>
+            Virtual path of server (clients use the URI http://[host]:[port]/[virtual path]).
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.FileServer.username">
+            <summary>
+            Username for basic http authentication.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.FileServer.password">
+            <summary>
+            Password for basic http authentication.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.FileServer.host">
+            <summary>
+            WCF service host for the FileServer.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.FileServer.#ctor(System.Int32,System.String,System.String,System.String,System.String)">
+            <summary>
+            Initializes a new instance of the FileServer class
+            </summary>
+            <param name="port">Port used by the server to listen on.</param>
+            <param name="physicalPath">Root of the path served by the server.</param>
+            <param name="virtualPath">To get to the files, a caller needs to get http://[ip]:[port]/[virtualPath]/[file]</param>
+            <param name="serverUserName">Username that is allowed access to the server.</param>
+            <param name="serverPassword">Password that is allowed access to the server.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FileServer.Start">
+            <summary>
+            Starts the server.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.FileServer.Stop">
+            <summary>
+            Stops the server.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.FileServer.Dispose">
+            <summary>
+            IDisposable implementation.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.FileServer.IFileServerService">
+            <summary>
+            interface / contract for an endpoint
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.FileServer.IFileServerService.GetFile">
+            <summary>
+            Gets a file from the server.
+            </summary>
+            <returns>A message containing a stream to the requested file.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.FileServer.FileServerService">
+            <summary>
+            This is the WCF service class that is used to host the File Server.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.FileServer.FileServerService.DirectoryListingTableFillChar">
+            <summary>
+            The char used to fill in the rows of the directory listing table so it's properly formatted.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.FileServer.FileServerService.serverPhysicalPath">
+            <summary>
+            Path to the directory served by the service.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.FileServer.FileServerService.serverVirtualPath">
+            <summary>
+            Virtual path of the http server.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.FileServer.FileServerService.Initialize(System.String,System.String)">
+            <summary>
+            Initializes the service with the physical and virtual path.
+            </summary>
+            <param name="physicalPath">The physical path.</param>
+            <param name="virtualPath">The virtual path.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FileServer.FileServerService.GetFile">
+            <summary>
+            Gets a file from the server.
+            </summary>
+            <returns>
+            A message containing a stream to the requested file.
+            </returns>
+        </member>
+        <member name="M:Uhuru.Utilities.FileServer.FileServerService.CreateStreamResponse(System.String)">
+            <summary>
+            Creates a Message that contains an open stream to the contents of the specified file.
+            </summary>
+            <param name="filePath">The file path.</param>
+            <returns>A Message that can stream the contents of the file.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.FileServer.FileServerService.GetReadableForm(System.Int64)">
+            <summary>
+            converts a numeric file size into a human readable one
+            </summary>
+            <param name="size">the size to convert (e.g. 800)</param>
+            <returns>a nicely formatted string (e.g. 800B)</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.FileServer.FileServerService.CreateCLITableRow(System.String,System.String)">
+            <summary>
+            Creates the cli line.
+            </summary>
+            <param name="leftColumn">The left column of a table.</param>
+            <param name="rightColumn">The right column of the table.</param>
+            <returns>A string that is formatted as a table row with two columns.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.FileServer.FileServerService.GetFullFilePath(System.String)">
+            <summary>
+            Gets the full path of a specified file or directory.
+            </summary>
+            <param name="path">The path.</param>
+            <returns>The absolute path to the file or directory.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.DotNetVersion">
+            <summary>
+            a DotNet version
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.DotNetVersion.Two">
+            <summary>
+            version 2.0
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.DotNetVersion.Four">
+            <summary>
+            version 4.0
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.NetFrameworkVersion">
+            <summary>
+            class used for dot net framework version detection
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.NetFrameworkVersion.GetVersion(System.String)">
+            <summary>
+            returns the dot net framework version of an assembly
+            </summary>
+            <param name="assemblyPath">the path to the assembly</param>
+            <returns>the dot net framewrok version</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.NetFrameworkVersion.GetFrameworkFromConfig(System.String)">
+            <summary>
+            Gets the framework from web.config file for web sites that don't have any dlls, but have asp code that is being compiled at runtime.
+            </summary>
+            <param name="webConfig">Path to the web.config.</param>
+            <returns>the dot net framewrok version</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.UserCustomAuthentication">
+            <summary>
+            Class used for custom user/password authentication.
+            This is used in the file server and the healthz/varz server.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.UserCustomAuthentication.validUsername">
+            <summary>
+            The username that passes the validation check.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.UserCustomAuthentication.validPassword">
+            <summary>
+            The password that passes the validation check.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.UserCustomAuthentication.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the UserCustomAuthentication class
+            </summary>
+            <param name="userName">Username that is allowed access.</param>
+            <param name="password">Password that is allowed access.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.UserCustomAuthentication.Validate(System.String,System.String)">
+            <summary>
+            This method is called when a server needs to check if credentials are ok.
+            </summary>
+            <param name="userName">Username to verify.</param>
+            <param name="password">Password to verify.</param>
+        </member>
+        <member name="T:Uhuru.Utilities.Credentials">
+            <summary>
+            This is a helper class that generates credential strings, such as usernames and passwords.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.Credentials.GenerateCredential">
+            <summary>
+            Generates a credential string with a default length of 12 characters.
+            </summary>
+            <returns>A string containing a randomly generated string with length 12.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.Credentials.GenerateCredential(System.Int32)">
+            <summary>
+            Generates a credential string using the specified length.
+            </summary>
+            <param name="length">An int specifying the length of the generated string.</param>
+            <returns>A string containing a randomly generated string.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.VarzRequestEventArgs">
+            <summary>
+            This is an EventArgs class used by the Healthz and Varz server.
+            When the server needs varz information, it raises an event.
+            The subscriber to that event sets the message of these args.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.VarzRequestEventArgs.varzMessage">
+            <summary>
+            The varz message.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.VarzRequestEventArgs.VarzMessage">
+            <summary>
+            Gets or sets the varz message that will be served by the server.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.WindowsJobObjects.NativeMethods">
+            <summary>
+            Job Objects Windows API native methods.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JobObjectInfoClass">
+            <summary>
+            Used for calling the Win API
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JobObjectInfoClass.JobObjectBasicAccountingInformation">
+            <summary>
+            The lpJobObjectInfo parameter is a pointer to a JOBOBJECT_BASIC_ACCOUNTING_INFORMATION structure.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JobObjectInfoClass.JobObjectBasicAndIoAccountingInformation">
+            <summary>
+            The lpJobObjectInfo parameter is a pointer to a JOBOBJECT_BASIC_AND_IO_ACCOUNTING_INFORMATION structure.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JobObjectInfoClass.JobObjectBasicLimitInformation">
+            <summary>
+            The lpJobObjectInfo parameter is a pointer to a JOBOBJECT_BASIC_LIMIT_INFORMATION structure.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JobObjectInfoClass.JobObjectBasicProcessIdList">
+            <summary>
+            The lpJobObjectInfo parameter is a pointer to a JOBOBJECT_BASIC_PROCESS_ID_LIST structure.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JobObjectInfoClass.JobObjectBasicUIRestrictions">
+            <summary>
+            The lpJobObjectInfo parameter is a pointer to a JOBOBJECT_BASIC_UI_RESTRICTIONS structure.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JobObjectInfoClass.JobObjectEndOfJobTimeInformation">
+            <summary>
+            The lpJobObjectInfo parameter is a pointer to a JOBOBJECT_END_OF_JOB_TIME_INFORMATION structure.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JobObjectInfoClass.JobObjectExtendedLimitInformation">
+            <summary>
+            The lpJobObjectInfo parameter is a pointer to a JOBOBJECT_EXTENDED_LIMIT_INFORMATION structure.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JobObjectInfoClass.JobObjectAssociateCompletionPortInformation">
+            <summary>
+            The lpJobObjectInfo parameter is a pointer to a JOBOBJECT_ASSOCIATE_COMPLETION_PORT structure.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.WindowsJobObjects.NativeMethods.SECURITY_ATTRIBUTES">
+            <summary>
+            The SECURITY_ATTRIBUTES structure contains the security descriptor for an object and specifies whether the handle retrieved by specifying this structure is inheritable.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.SECURITY_ATTRIBUTES.Length">
+            <summary>
+            Length of the structure.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.SECURITY_ATTRIBUTES.SecurityDescriptor">
+            <summary>
+            Security Descriptor
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.SECURITY_ATTRIBUTES.InheritHandle">
+            <summary>
+            Child process inheritance.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION">
+            <summary>
+            Contains basic and extended limit information for a job object.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION.JOB_OBJECT_LIMIT_ACTIVE_PROCESS">
+            <summary>
+            JOB_OBJECT_LIMIT_ACTIVE_PROCESS Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION.JOB_OBJECT_LIMIT_AFFINITY">
+            <summary>
+            JOB_OBJECT_LIMIT_AFFINITY Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION.JOB_OBJECT_LIMIT_BREAKAWAY_OK">
+            <summary>
+            JOB_OBJECT_LIMIT_BREAKAWAY_OK Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION.JOB_OBJECT_LIMIT_DIE_ON_UNHANDLED_EXCEPTION">
+            <summary>
+            JOB_OBJECT_LIMIT_DIE_ON_UNHANDLED_EXCEPTION Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION.JOB_OBJECT_LIMIT_JOB_MEMORY">
+            <summary>
+            JOB_OBJECT_LIMIT_JOB_MEMORY Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION.JOB_OBJECT_LIMIT_JOB_TIME">
+            <summary>
+            JOB_OBJECT_LIMIT_JOB_TIME Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION.JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE">
+            <summary>
+            JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION.JOB_OBJECT_LIMIT_PRESERVE_JOB_TIME">
+            <summary>
+            JOB_OBJECT_LIMIT_PRESERVE_JOB_TIME Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION.JOB_OBJECT_LIMIT_PRIORITY_CLASS">
+            <summary>
+            JOB_OBJECT_LIMIT_PRIORITY_CLASS Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION.JOB_OBJECT_LIMIT_PROCESS_MEMORY">
+            <summary>
+            JOB_OBJECT_LIMIT_PROCESS_MEMORY Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION.JOB_OBJECT_LIMIT_PROCESS_TIME">
+            <summary>
+            JOB_OBJECT_LIMIT_PROCESS_TIME Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION.JOB_OBJECT_LIMIT_SCHEDULING_CLASS">
+            <summary>
+            JOB_OBJECT_LIMIT_SCHEDULING_CLASS Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION.JOB_OBJECT_LIMIT_SILENT_BREAKAWAY_OK">
+            <summary>
+            JOB_OBJECT_LIMIT_SILENT_BREAKAWAY_OK Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION.JOB_OBJECT_LIMIT_SUBSET_AFFINITY">
+            <summary>
+            JOB_OBJECT_LIMIT_SILENT_BREAKAWAY_OK Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION.JOB_OBJECT_LIMIT_WORKINGSET">
+            <summary>
+            JOB_OBJECT_LIMIT_WORKINGSET Windows API constant.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION.PerProcessUserTimeLimit">
+            <summary>
+            Per process user time limit.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION.PerJobUserTimeLimit">
+            <summary>
+            Per job user time limit.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION.LimitFlags">
+            <summary>
+            Limit flags.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION.MinimumWorkingSetSize">
+            <summary>
+            Minimum working set size.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION.MaximumWorkingSetSize">
+            <summary>
+            Maximum working set size.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION.ActiveProcessLimit">
+            <summary>
+            Active process limit.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION.Affinity">
+            <summary>
+            Processor affinity.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION.PriorityClass">
+            <summary>
+            Priority class.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION.SchedulingClass">
+            <summary>
+            Scheduling class.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_UI_RESTRICTIONS">
+            <summary>
+            JOBOBJECT_BASIC_UI_RESTRICTIONS Windows API structure.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_UI_RESTRICTIONS.UIRestrictionsClass">
+            <summary>
+            UI Restrictions class.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_CPU_RATE_CONTROL_INFORMATION">
+            <summary>
+            JOBOBJECT_CPU_RATE_CONTROL_INFORMATION Windows API structure.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_CPU_RATE_CONTROL_INFORMATION.ControlFlags">
+            <summary>
+            Control Flags.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_CPU_RATE_CONTROL_INFORMATION.CpuRate_Weight">
+            <summary>
+            CPU rate weight.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_EXTENDED_LIMIT_INFORMATION">
+            <summary>
+            JOBOBJECT_EXTENDED_LIMIT_INFORMATION Windows API structure.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_EXTENDED_LIMIT_INFORMATION.BasicLimitInformation">
+            <summary>
+            BasicLimitInformation Windows API structure member.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_EXTENDED_LIMIT_INFORMATION.IoInfo">
+            <summary>
+            IoInfo Windows API structure member.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_EXTENDED_LIMIT_INFORMATION.ProcessMemoryLimit">
+            <summary>
+            ProcessMemoryLimit Windows API structure member.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_EXTENDED_LIMIT_INFORMATION.JobMemoryLimit">
+            <summary>
+            JobMemoryLimit Windows API structure member.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_EXTENDED_LIMIT_INFORMATION.PeakProcessMemoryUsed">
+            <summary>
+            PeakProcessMemoryUsed Windows API structure member.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_EXTENDED_LIMIT_INFORMATION.PeakJobMemoryUsed">
+            <summary>
+            PeakJobMemoryUsed Windows API structure member.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.WindowsJobObjects.NativeMethods.IO_COUNTERS">
+            <summary>
+            IO_COUNTERS Windows API structure.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.IO_COUNTERS.ReadOperationCount">
+            <summary>
+            ReadOperationCount Windows API structure member.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.IO_COUNTERS.WriteOperationCount">
+            <summary>
+            WriteOperationCount Windows API structure member.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.IO_COUNTERS.OtherOperationCount">
+            <summary>
+            OtherOperationCount Windows API structure member.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.IO_COUNTERS.ReadTransferCount">
+            <summary>
+            ReadTransferCount Windows API structure member.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.IO_COUNTERS.WriteTransferCount">
+            <summary>
+            WriteTransferCount Windows API structure member.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.IO_COUNTERS.OtherTransferCount">
+            <summary>
+            OtherTransferCount Windows API structure member.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_ACCOUNTING_INFORMATION">
+            <summary>
+            JOBOBJECT_BASIC_ACCOUNTING_INFORMATION Windows API structure.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_ACCOUNTING_INFORMATION.TotalUserTime">
+            <summary>
+            TotalUserTime Windows API structure member.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_ACCOUNTING_INFORMATION.TotalKernelTime">
+            <summary>
+            TotalKernelTime Windows API structure member.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_ACCOUNTING_INFORMATION.ThisPeriodTotalUserTime">
+            <summary>
+            ThisPeriodTotalUserTime Windows API structure member.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_ACCOUNTING_INFORMATION.ThisPeriodTotalKernelTime">
+            <summary>
+            ThisPeriodTotalKernelTime Windows API structure member.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_ACCOUNTING_INFORMATION.TotalPageFaultCount">
+            <summary>
+            TotalPageFaultCount Windows API structure member.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_ACCOUNTING_INFORMATION.TotalProcesses">
+            <summary>
+            TotalProcesses Windows API structure member.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_ACCOUNTING_INFORMATION.ActiveProcesses">
+            <summary>
+            ActiveProcesses Windows API structure member.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_ACCOUNTING_INFORMATION.TotalTerminatedProcesses">
+            <summary>
+            TotalTerminatedProcesses Windows API structure member.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_AND_IO_ACCOUNTING_INFORMATION">
+            <summary>
+            JOBOBJECT_BASIC_AND_IO_ACCOUNTING_INFORMATION Windows API structure.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_AND_IO_ACCOUNTING_INFORMATION.BasicInfo">
+            <summary>
+            BasicInfo Windows API structure member.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_AND_IO_ACCOUNTING_INFORMATION.IoInfo">
+            <summary>
+            IoInfo Windows API structure member.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_PROCESS_ID_LIST">
+            <summary>
+            JOBOBJECT_BASIC_PROCESS_ID_LIST Windows API structure.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_PROCESS_ID_LIST.MaxProcessListLength">
+            <summary>
+            The maximum number of processes that are allocated when querying Windows API. 
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_PROCESS_ID_LIST.NumberOfAssignedProcesses">
+            <summary>
+            NumberOfAssignedProcesses Windows API structure member.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_PROCESS_ID_LIST.NumberOfProcessIdsInList">
+            <summary>
+            NumberOfProcessIdsInList Windows API structure member.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsJobObjects.NativeMethods.JOBOBJECT_BASIC_PROCESS_ID_LIST.ProcessIdList">
+            <summary>
+            ProcessIdList Windows API structure member.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.MonitoringServer">
+            <summary>
+            This class implements an http server that is used to get healthz and varz information about a Cloud Foundry component.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.MonitoringServer.instance">
+            <summary>
+            The singleton MonitoringServer instance.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.MonitoringServer.serverPort">
+            <summary>
+            The port on which the server is listening.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.MonitoringServer.hostName">
+            <summary>
+            The hostname of the machine hosting the service.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.MonitoringServer.username">
+            <summary>
+            The username used for basic http authentication.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.MonitoringServer.password">
+            <summary>
+            The password used for basic http authentication.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.MonitoringServer.host">
+            <summary>
+            The WCF service host used to publish the server.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.MonitoringServer.#ctor(System.Int32,System.String,System.String,System.String)">
+            <summary>
+            Initializes a new instance of the MonitoringServer class
+            </summary>
+            <param name="port">The port used by the server to listen.</param>
+            <param name="host">The host used to publish the service.</param>
+            <param name="serverUserName">A username for basic authentication.</param>
+            <param name="serverPassword">A password for basic authentication.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.MonitoringServer.Start">
+            <summary>
+            Starts the server.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.MonitoringServer.Stop">
+            <summary>
+            Stops the server.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.MonitoringServer.Dispose">
+            <summary>
+            IDisposable implementation.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.MonitoringServer.TriggerHealthz(System.Object,Uhuru.Utilities.HealthzRequestEventArgs)">
+            <summary>
+            Triggers the HealthzRequested event.
+            </summary>
+            <param name="sender">The sender.</param>
+            <param name="e">The <see cref="T:Uhuru.Utilities.HealthzRequestEventArgs"/> instance containing the event data.</param>
+            <returns>A string that contains the requested message.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.MonitoringServer.TriggerVarz(System.Object,Uhuru.Utilities.VarzRequestEventArgs)">
+            <summary>
+            Triggers the VarzRequested event.
+            </summary>
+            <param name="sender">The sender.</param>
+            <param name="e">The <see cref="T:Uhuru.Utilities.VarzRequestEventArgs"/> instance containing the event data.</param>
+            <returns>A string containing the requested message.</returns>
+        </member>
+        <member name="E:Uhuru.Utilities.MonitoringServer.HealthzRequested">
+            <summary>
+            Event that is raised when the server receives a healthz request (http://[ip]:[port]/healthz).
+            </summary>
+        </member>
+        <member name="E:Uhuru.Utilities.MonitoringServer.VarzRequested">
+            <summary>
+            Event that is raised when the server receives a varz request (http://[ip]:[port]/varz).
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.MonitoringServer.Instance">
+            <summary>
+            Gets the singleton instance of the Monitoring Server.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.MonitoringServer.IMonitoringService">
+            <summary>
+            WCF contract that the service implements.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.MonitoringServer.IMonitoringService.GetHealthz">
+            <summary>
+            Gets the healthz message.
+            </summary>
+            <returns>A JSON string containing the healthz message.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.MonitoringServer.IMonitoringService.GetVarz">
+            <summary>
+            Gets the varz message.
+            </summary>
+            <returns>A JSON string containing various status information.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.MonitoringServer.MonitoringService">
+            <summary>
+            This is the class that implements the IMonitoringService contract; WCF uses it as a singleton when it publishes the server.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.MonitoringServer.MonitoringService.GetHealthz">
+            <summary>
+            Gets the healthz message.
+            </summary>
+            <returns>
+            A JSON string containing the healthz message.
+            </returns>
+        </member>
+        <member name="M:Uhuru.Utilities.MonitoringServer.MonitoringService.GetVarz">
+            <summary>
+            Gets the varz message.
+            </summary>
+            <returns>
+            A JSON string containing various status information.
+            </returns>
+        </member>
+        <member name="M:Uhuru.Utilities.MonitoringServer.MonitoringService.CreateTextresponse(System.String,System.String)">
+            <summary>
+            Creates a Message with a text response.
+            </summary>
+            <param name="message">The message.</param>
+            <param name="contentType">Type of the content.</param>
+            <returns>A message that has a text body.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.ProcessPerformance.SystemTime">
+            <summary>
+            A class to hold the properties of a particular time.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.SystemTime.year">
+            <summary>
+            the year
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.SystemTime.month">
+            <summary>
+            the month
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.SystemTime.dayOfWeek">
+            <summary>
+            the day of the week
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.SystemTime.day">
+            <summary>
+            the day of the month
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.SystemTime.hour">
+            <summary>
+            the hour
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.SystemTime.minute">
+            <summary>
+            the minute
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.SystemTime.second">
+            <summary>
+            the second
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.SystemTime.milliseconds">
+            <summary>
+            the milliseconds
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessPerformance.SystemTime.op_Equality(Uhuru.Utilities.ProcessPerformance.SystemTime,Uhuru.Utilities.ProcessPerformance.SystemTime)">
+            <summary>
+            overload of == for this particular type
+            </summary>
+            <param name="firstValue">the first parameter</param>
+            <param name="secondValue">the second parameter</param>
+            <returns>the intended result of ==</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessPerformance.SystemTime.op_Inequality(Uhuru.Utilities.ProcessPerformance.SystemTime,Uhuru.Utilities.ProcessPerformance.SystemTime)">
+            <summary>
+            overload of != for this particular type
+            </summary>
+            <param name="firstValue">the first parameter</param>
+            <param name="secondValue">the second parameter</param>
+            <returns>the intended result of !=</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessPerformance.SystemTime.Equals(System.Object)">
+            <summary>
+            determines whether the current instance equals another object or not
+            </summary>
+            <param name="obj">the object to compare the current instance to</param>
+            <returns>the result of the comparison</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessPerformance.SystemTime.GetHashCode">
+            <summary>
+            returns the hashcode for this instance
+            </summary>
+            <returns>the requested hashcode</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.ProcessPerformance.ProcessTimes">
+            <summary>
+            holds the process time data. 
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessTimes.CreationTime">
+            <summary>
+            Creation time of the process.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessTimes.ExitTime">
+            <summary>
+            Exit time of the process.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessTimes.KernelTime">
+            <summary>
+            Kernel CPU time the process spent.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessTimes.UserTime">
+            <summary>
+            User CPU time the process spent.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessTimes.RawCreationTime">
+            <summary>
+            Creation time of the process in its raw (native) format.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessTimes.RawExitTime">
+            <summary>
+            Exit time of the process in its raw (native) format.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessTimes.RawKernelTime">
+            <summary>
+            Kernel CPU time the process spent in its raw (native) format.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessTimes.RawUserTime">
+            <summary>
+            User CPU time the process spent in its raw (native) format.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessPerformance.ProcessTimes.ConvertTime">
+            <summary>
+            Converts the FILETIME fields to DateTime and stores the results in their respective properties.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessPerformance.ProcessTimes.FiletimeToDateTime(System.Runtime.InteropServices.ComTypes.FILETIME)">
+            <summary>
+            Filetimes a FILETIME to a DateTime.
+            </summary>
+            <param name="fileTime">The FILETIME object.</param>
+            <returns>A DateTime object cointaining the converted value.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.Logger">
+            <summary>
+            This is a helper logger class that is used throughout the code.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.Logger.log">
+            <summary>
+            The NLog.Logger object used for logging.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Fatal(System.String)">
+            <summary>
+            Logs a fatal message.
+            This indicates a really severe error, that will probably make the application crash.
+            </summary>
+            <param name="message">The message to be logged.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Error(System.String)">
+            <summary>
+            Logs an error message.
+            This indicates an error, but the application may be able to continue.
+            </summary>
+            <param name="message">The message to be logged.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Warning(System.String)">
+            <summary>
+            Logs a warning message.
+            This indicates a situation that could lead to some bad things.
+            </summary>
+            <param name="message">The message to be logged.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Info(System.String)">
+            <summary>
+            Logs an information message.
+            The message is used to indicate some progress.
+            </summary>
+            <param name="message">The message to be logged.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Debug(System.String)">
+            <summary>
+            Logs a debug message.
+            This is an informational message, that is useful when debugging.
+            </summary>
+            <param name="message">The message to be logged.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Fatal(System.String,System.Object[])">
+            <summary>
+            Logs a fatal message and formats it.
+            This indicates a really severe error, that will probably make the application crash.
+            </summary>
+            <param name="message">The message to be logged.</param>
+            <param name="args">The arguments used for formatting.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Error(System.String,System.Object[])">
+            <summary>
+            Logs an error message and formats it.
+            This indicates an error, but the application may be able to continue.
+            </summary>
+            <param name="message">The message to be logged.</param>
+            <param name="args">The arguments used for formatting.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Warning(System.String,System.Object[])">
+            <summary>
+            Logs a warning message and formats it.
+            This indicates a situation that could lead to some bad things.
+            </summary>
+            <param name="message">The message to be logged.</param>
+            <param name="args">The arguments used for formatting.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Info(System.String,System.Object[])">
+            <summary>
+            Logs an information message and formats it.
+            The message is used to indicate some progress.
+            </summary>
+            <param name="message">The message to be logged.</param>
+            <param name="args">The arguments used for formatting.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Debug(System.String,System.Object[])">
+            <summary>
+            Logs a debug message and formats it.
+            This is an informational message, that is useful when debugging.
+            </summary>
+            <param name="message">The message to be logged.</param>
+            <param name="args">The arguments used for formatting.</param>
+        </member>
+        <member name="T:Uhuru.Utilities.FirewallTools">
+            <summary>
+            a set of firewall-related tools
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.FirewallTools.OpenPort(System.Int32,System.String)">
+            <summary>
+            opens a firewall port to an application
+            </summary>
+            <param name="port">the port to open</param>
+            <param name="applicationName">the application to open the port to</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FirewallTools.ClosePort(System.Int32)">
+            <summary>
+            closes a port
+            </summary>
+            <param name="port">the port to be closed</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FirewallTools.OpenPortRange(System.Int32,System.Int32,System.String)">
+            <summary>
+            opens a range of firewall ports
+            </summary>
+            <param name="lowPort">the start port to open</param>
+            <param name="highPort">the end port to open</param>
+            <param name="ruleName">Firewall rule name</param>
+        </member>
+        <member name="T:Uhuru.Utilities.JunctionPoint">
+            <summary>
+            Provides access to NTFS junction points in .Net.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.ErrorNotAReparsePoint">
+            <summary>
+            The file or directory is not a reparse point.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.ErrorReparseAttributeConflict">
+            <summary>
+            The reparse point attribute cannot be set because it conflicts with an existing attribute.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.ErrorInvalidReparseData">
+            <summary>
+            The data present in the reparse point buffer is invalid.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.ErrorReparseTagInvalid">
+            <summary>
+            The tag present in the reparse point buffer is invalid.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.ErrorReparseTagMismatch">
+            <summary>
+            There is a mismatch between the tag specified in the request and the tag present in the reparse point.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.FsctlSetReparsePoint">
+            <summary>
+            Command to set the reparse point data block.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.FsctlGetReparsePoint">
+            <summary>
+            Command to get the reparse point data block.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.FsctlDeleteReparsePoint">
+            <summary>
+            Command to delete the reparse point data base.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.IoReparseTagMountPoint">
+            <summary>
+            Reparse point tag used to identify mount points and junction points.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.NonInterpretedPathPrefix">
+            <summary>
+            This prefix indicates to NTFS that the path is to be treated as a non-interpreted
+            path in the virtual file system.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.JunctionPoint.Create(System.String,System.String,System.Boolean)">
+            <summary>
+            Creates a junction point from the specified directory to the specified target directory.
+            </summary>
+            <remarks>
+            Only works on NTFS.
+            </remarks>
+            <param name="junctionPoint">The junction point path</param>
+            <param name="targetDir">The target directory</param>
+            <param name="overwrite">If true overwrites an existing reparse point or empty directory</param>
+            <exception cref="T:System.IO.IOException">Thrown when the junction point could not be created or when
+            an existing directory was found and <paramref name="overwrite"/> if false</exception>
+        </member>
+        <member name="M:Uhuru.Utilities.JunctionPoint.Delete(System.String)">
+            <summary>
+            Deletes a junction point at the specified source directory along with the directory itself.
+            Does nothing if the junction point does not exist.
+            </summary>
+            <remarks>
+            Only works on NTFS.
+            </remarks>
+            <param name="junctionPoint">The junction point path</param>
+        </member>
+        <member name="M:Uhuru.Utilities.JunctionPoint.Exists(System.String)">
+            <summary>
+            Determines whether the specified path exists and refers to a junction point.
+            </summary>
+            <param name="path">The junction point path</param>
+            <returns>True if the specified path represents a junction point</returns>
+            <exception cref="T:System.IO.IOException">Thrown if the specified path is invalid
+            or some other error occurs</exception>
+        </member>
+        <member name="M:Uhuru.Utilities.JunctionPoint.GetTarget(System.String)">
+            <summary>
+            Gets the target of the specified junction point.
+            </summary>
+            <remarks>
+            Only works on NTFS.
+            </remarks>
+            <param name="junctionPoint">The junction point path</param>
+            <returns>The target of the junction point</returns>
+            <exception cref="T:System.IO.IOException">Thrown when the specified path does not
+            exist, is invalid, is not a junction point, or some other error occurs</exception>
+        </member>
+        <member name="M:Uhuru.Utilities.JunctionPoint.DeviceIoControl(System.IntPtr,System.UInt32,System.IntPtr,System.Int32,System.IntPtr,System.Int32,System.Int32@,System.IntPtr)">
+            <summary>
+            Sends a control code directly to a specified device driver, causing the corresponding device to perform the corresponding operation.
+            </summary>
+            <param name="device">A handle to the device on which the operation is to be performed.</param>
+            <param name="controlCode">The control code for the operation. </param>
+            <param name="inBuffer">A pointer to the input buffer that contains the data required to perform the operation.</param>
+            <param name="inBufferSize">The size of the input buffer, in bytes.</param>
+            <param name="outBuffer">A pointer to the output buffer that is to receive the data returned by the operation.</param>
+            <param name="outBufferSize">The size of the output buffer, in bytes.</param>
+            <param name="bytesReturned">A pointer to a variable that receives the size of the data stored in the output buffer, in bytes.</param>
+            <param name="overlapped">A pointer to an OVERLAPPED structure.</param>
+            <returns>If the operation completes successfully, the return value is nonzero.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.JunctionPoint.CreateFile(System.String,Uhuru.Utilities.JunctionPoint.EFileAccess,Uhuru.Utilities.JunctionPoint.EFileShare,System.IntPtr,Uhuru.Utilities.JunctionPoint.ECreationDisposition,Uhuru.Utilities.JunctionPoint.EFileAttributes,System.IntPtr)">
+            <summary>
+            Creates or opens a file or I/O device.
+            </summary>
+            <param name="fileName">The name of the file or device to be created or opened.</param>
+            <param name="desiredAccess">The requested access to the file or device, which can be summarized as read, write, both or neither zero).</param>
+            <param name="shareMode">The requested sharing mode of the file or device, which can be read, write, both, delete, all of these, or none.</param>
+            <param name="securityAttributes">A pointer to a SECURITY_ATTRIBUTES structure that contains two separate but related data members: an optional security descriptor, and a Boolean value that determines whether the returned handle can be inherited by child processes.</param>
+            <param name="creationDisposition">An action to take on a file or device that exists or does not exist.</param>
+            <param name="flagsAndAttributes">The file or device attributes and flags, FILE_ATTRIBUTE_NORMAL being the most common default value for files.</param>
+            <param name="templateFile">A valid handle to a template file with the GENERIC_READ access right.</param>
+            <returns>If the function succeeds, the return value is an open handle to the specified file, device, named pipe, or mail slot.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.JunctionPoint.InternalGetTarget(Microsoft.Win32.SafeHandles.SafeFileHandle)">
+            <summary>
+            Gets target directory.
+            </summary>
+            <param name="handle">A file safe handle.</param>
+            <returns>The target directory.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.JunctionPoint.OpenReparsePoint(System.String,Uhuru.Utilities.JunctionPoint.EFileAccess)">
+            <summary>
+            Opens a reparse point.
+            </summary>
+            <param name="reparsePoint">The reparse point to open.</param>
+            <param name="accessMode">Access mode use to open the reparse point.</param>
+            <returns>A safe file handle.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.JunctionPoint.ThrowLastWin32Error(System.String)">
+            <summary>
+            Throws an exception containing a messsage and the last win 32 API error.
+            </summary>
+            <param name="message">A message for the exception to be thrown.</param>
+        </member>
+        <member name="T:Uhuru.Utilities.JunctionPoint.EFileAccess">
+            <summary>
+            File access enumeration.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAccess.GenericRead">
+            <summary>
+            Read file access.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAccess.GenericWrite">
+            <summary>
+            Write file access.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAccess.GenericExecute">
+            <summary>
+            Execute file access.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAccess.GenericAll">
+            <summary>
+            File access for everything.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.JunctionPoint.EFileShare">
+            <summary>
+            File sharing access enum.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileShare.None">
+            <summary>
+            No sharing.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileShare.Read">
+            <summary>
+            Read share access.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileShare.Write">
+            <summary>
+            Write share access.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileShare.Delete">
+            <summary>
+            Delete share access.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.JunctionPoint.ECreationDisposition">
+            <summary>
+            Creation disposition enum.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.ECreationDisposition.New">
+            <summary>
+            Create new.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.ECreationDisposition.CreateAlways">
+            <summary>
+            Create always.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.ECreationDisposition.OpenExisting">
+            <summary>
+            Open existing.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.ECreationDisposition.OpenAlways">
+            <summary>
+            Open always.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.ECreationDisposition.TruncateExisting">
+            <summary>
+            Truncate existing.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.JunctionPoint.EFileAttributes">
+            <summary>
+            File attributes enum.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAttributes.Readonly">
+            <summary>
+            Read only.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAttributes.Hidden">
+            <summary>
+            Hidden attribute.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAttributes.System">
+            <summary>
+            System attribute.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAttributes.Directory">
+            <summary>
+            Directory attribute.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAttributes.Archive">
+            <summary>
+            Archive attribute.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAttributes.Device">
+            <summary>
+            Device attribute.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAttributes.Normal">
+            <summary>
+            Normal attribute.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAttributes.Temporary">
+            <summary>
+            Temporary attribute.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAttributes.SparseFile">
+            <summary>
+            Sparse file.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAttributes.ReparsePoint">
+            <summary>
+            Reparse point.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAttributes.Compressed">
+            <summary>
+            Compressed attribute.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAttributes.Offline">
+            <summary>
+            Offline attribute.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAttributes.NotContentIndexed">
+            <summary>
+            Not content indexed.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAttributes.Encrypted">
+            <summary>
+            Encrypted attribute.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAttributes.Write_Through">
+            <summary>
+            Write through.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAttributes.Overlapped">
+            <summary>
+            Overlapped attribute.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAttributes.NoBuffering">
+            <summary>
+            No buffering.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAttributes.RandomAccess">
+            <summary>
+            Random access.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAttributes.SequentialScan">
+            <summary>
+            Sequential scan.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAttributes.DeleteOnClose">
+            <summary>
+            Delete on close.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAttributes.BackupSemantics">
+            <summary>
+            Backup semantics.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAttributes.PosixSemantics">
+            <summary>
+            Posix semantics.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAttributes.OpenReparsePoint">
+            <summary>
+            Open reparse point.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAttributes.OpenNoRecall">
+            <summary>
+            Open no recall.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.EFileAttributes.FirstPipeInstance">
+            <summary>
+            First pipe instance.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.JunctionPoint.REPARSE_DATA_BUFFER">
+            <summary>
+            A structure for a reparse data buffer.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.REPARSE_DATA_BUFFER.ReparseTag">
+            <summary>
+            Reparse point tag. Must be a Microsoft reparse point tag.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.REPARSE_DATA_BUFFER.ReparseDataLength">
+            <summary>
+            Size, in bytes, of the data after the Reserved member. This can be calculated by:
+            (4 * sizeof(ushort)) + SubstituteNameLength + PrintNameLength + 
+            (namesAreNullTerminated ? 2 * sizeof(char) : 0);
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.REPARSE_DATA_BUFFER.Reserved">
+            <summary>
+            Reserved; do not use. 
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.REPARSE_DATA_BUFFER.SubstituteNameOffset">
+            <summary>
+            Offset, in bytes, of the substitute name string in the PathBuffer array.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.REPARSE_DATA_BUFFER.SubstituteNameLength">
+            <summary>
+            Length, in bytes, of the substitute name string. If this string is null-terminated,
+            SubstituteNameLength does not include space for the null character.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.REPARSE_DATA_BUFFER.PrintNameOffset">
+            <summary>
+            Offset, in bytes, of the print name string in the PathBuffer array.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.REPARSE_DATA_BUFFER.PrintNameLength">
+            <summary>
+            Length, in bytes, of the print name string. If this string is null-terminated,
+            PrintNameLength does not include space for the null character. 
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JunctionPoint.REPARSE_DATA_BUFFER.PathBuffer">
+            <summary>
+            A buffer containing the unicode-encoded path string. The path string contains
+            the substitute name string and print name string.
+            </summary>
+        </member>
+    </members>
+</doc>
