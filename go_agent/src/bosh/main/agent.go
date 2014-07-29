@@ -9,7 +9,7 @@ import (
 
 const mainLogTag = "main"
 
-func main() {
+func runAgent() {
 	logger := boshlog.NewLogger(boshlog.LevelDebug)
 	defer logger.HandlePanic("Main")
 
