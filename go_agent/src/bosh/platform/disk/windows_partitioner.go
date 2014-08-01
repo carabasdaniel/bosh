@@ -42,10 +42,14 @@ func (p windowsPartitioner) Partition(devicePath string, partitions []Partition)
 		return
 	}
 
-	script := fmt.Sprintf("SELECT DISK %d\n CLEAN ALL\n", diskId)
+	script := fmt.Sprintf("SELECT DISK %d\n CLEAN\n", diskId)
 
 	for _, a := range partitions {
-		script = script + fmt.Sprintf("CREATE PARTITION PRIMARY SIZE=%d\n", a.SizeInMb)
+		if a.SizeInMb == 0 {
+			script = script + fmt.Sprintf("CREATE PARTITION PRIMARY\n")
+		} else {
+			script = script + fmt.Sprintf("CREATE PARTITION PRIMARY SIZE=%d\n", a.SizeInMb)
+		}
 	}
 	script = script + "EXIT\n"
 

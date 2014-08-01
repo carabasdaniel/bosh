@@ -113,10 +113,10 @@ func (p windowsPlatform) SetupManualNetworking(networks boshsettings.Networks) (
 }
 
 func (p windowsPlatform) SetupRuntimeConfiguration() (err error) {
-	_, _, _, err = p.cmdRunner.RunCommand("bosh-agent-rc")
-	if err != nil {
-		err = bosherr.WrapError(err, "Shelling out to bosh-agent-rc")
-	}
+	//_, _, _, err = p.cmdRunner.RunCommand("bosh-agent-rc")
+	//if err != nil {
+	//	err = bosherr.WrapError(err, "Shelling out to bosh-agent-rc")
+	//}
 	return
 }
 
@@ -329,7 +329,7 @@ func (p windowsPlatform) SetupHostname(hostname string) (err error) {
 		return
 	}
 
-	_, _, _, err = p.cmdRunner.RunCommand("netdom", "RENAMECOMPUTER \""+old_hostname+"\" /Newname \""+hostname+"\" /force")
+	_, _, _, err = p.cmdRunner.RunCommand("netdom", "RENAMECOMPUTER", strings.TrimSpace(old_hostname), "/NewName", hostname, "/force")
 
 	if err != nil {
 		err = bosherr.WrapError(err, "Shelling out to netdom")
@@ -362,6 +362,16 @@ func (p windowsPlatform) SetupLogrotate(groupName, basePath, size string) (err e
 	if err != nil {
 		err = bosherr.WrapError(err, "Writing to LogRotator.xml")
 		return
+	}
+
+	//Restart logrotator service to reload configuration changes
+	err = p.GetRunner().RunCommand("net", "stop", "logrotator")
+	if err != nil {
+		fmt.Println("Failed stopping logrotator")
+	}
+	err = p.GetRunner().RunCommand("net", "start", "logrotator")
+	if err != nil {
+		fmt.Println("Failed starting logrotator")
 	}
 
 	return
@@ -415,7 +425,7 @@ func (p windowsPlatform) SetTimeWithNtpServers(servers []string) (err error) {
 //realPath should be disk id
 func (p windowsPlatform) SetupEphemeralDiskWithPath(realPath string) (err error) {
 	mountPoint := p.dirProvider.DataDir()
-
+	//p.fs.RemoveAll(mountPoint)
 	err = p.fs.MkdirAll(mountPoint, os.FileMode(0750))
 	if err != nil {
 		return bosherr.WrapError(err, "Creating data dir")
@@ -426,16 +436,15 @@ func (p windowsPlatform) SetupEphemeralDiskWithPath(realPath string) (err error)
 		return nil
 	}
 
-	swapSize, windowsSize, err := p.calculateEphemeralDiskPartitionSizes(realPath)
+	//_, windowsSize, err := p.calculateEphemeralDiskPartitionSizes(realPath)
 	if err != nil {
 		return bosherr.WrapError(err, "Calculating partition sizes")
 	}
 
 	partitions := []boshdisk.Partition{
-		{SizeInMb: swapSize, Type: boshdisk.PartitionTypeWindows},
-		{SizeInMb: windowsSize, Type: boshdisk.PartitionTypeWindows},
+		//{SizeInMb: swapSize, Type: boshdisk.PartitionTypeWindows},
+		{SizeInMb: 0, Type: boshdisk.PartitionTypeWindows},
 	}
-
 	err = p.diskManager.GetPartitioner().Partition(realPath, partitions)
 	if err != nil {
 		return bosherr.WrapError(err, "Partitioning disk")
@@ -607,7 +616,7 @@ func (p windowsPlatform) UnmountPersistentDisk(devicePath string) (didUnmount bo
 }
 
 func (p windowsPlatform) NormalizeDiskPath(attachment string) (devicePath string, found bool) {
-	return attachment, false
+	return attachment, true
 }
 
 func (p windowsPlatform) MigratePersistentDisk(fromMountPoint, toMountPoint string) (err error) {
@@ -709,6 +718,7 @@ func (p windowsPlatform) calculateEphemeralDiskPartitionSizes(devicePath string)
 		swapSize = totalMemInMb
 	}
 
-	windowsSize = diskSizeInMb - swapSize
+	windowsSize = diskSizeInMb
+
 	return
 }

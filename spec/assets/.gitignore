@@ -6,3 +6,4 @@ bosh_config.yml
 bosh_work_dir/tmp
 logs/*
 *.log
+/*.tar
