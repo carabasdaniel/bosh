@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type DiskPartInterface interface {
@@ -25,6 +26,11 @@ func NewDiskPart() DiskPartInterface {
 }
 
 func (d DiskPart) ExecuteDiskPartScript(script string) (string, error) {
+	//TO DO: Mutex on script file
+	fmt.Println("--------------------------------------------------------")
+	fmt.Println(time.Now())
+	fmt.Println(script)
+	fmt.Println("--------------------------------------------------------")
 	file, err := os.Create("diskpart_script.txt")
 	defer os.Remove("diskpart_script.txt")
 	if err != nil {
@@ -90,6 +96,7 @@ func (d DiskPart) GetPartitions(diskId int) (partitions []Partition, err error) 
 	return partitions, nil
 }
 
+//TO DO: Change parsing of diskpart output to regex
 func (d DiskPart) GetDiskInfo(diskid int) (diskname, status string, size, free uint64) {
 
 	key := "Disk " + strconv.Itoa(diskid)
@@ -98,12 +105,17 @@ func (d DiskPart) GetDiskInfo(diskid int) (diskname, status string, size, free u
 	diskinfo := make(map[string][]string)
 
 	for _, a := range content {
-		if strings.Contains(a, "GB") {
-			info := strings.Split(a, "    ")
-			for _, b := range info {
-				if len(strings.Trim(b, " ")) > 1 {
-					diskinfo[strings.TrimSpace(info[0])] = append(diskinfo[strings.TrimSpace(info[0])], strings.Trim(b, " "))
+		if strings.Contains(a, "GB") || strings.Contains(a, "MB") {
+
+			var info []string
+			for _, item := range strings.Split(a, "  ") {
+				piece := strings.TrimSpace(item)
+				if len(piece) > 0 {
+					info = append(info, piece)
 				}
+			}
+			for _, b := range info {
+				diskinfo[info[0]] = append(diskinfo[info[0]], strings.TrimSpace(b))
 			}
 
 		}
@@ -111,23 +123,41 @@ func (d DiskPart) GetDiskInfo(diskid int) (diskname, status string, size, free u
 
 	diskname = diskinfo[key][0]
 	status = diskinfo[key][1]
-	size_asString := strings.TrimSpace(strings.Replace(strings.Replace(diskinfo[key][2], "GB", "", -1), "B", "", -1))
-	free_asString := strings.TrimSpace(strings.Replace(strings.Replace(diskinfo[key][3], "GB", "", -1), "B", "", -1))
-	size, err := strconv.ParseUint(size_asString, 10, 64)
-	if err != nil {
-		panic(err)
-	}
-	size = size * 1024
 
-	free, err = strconv.ParseUint(free_asString, 10, 64)
-	if err != nil {
-		panic(err)
+	sizeStrings := map[string]uint64{
+		" GB": 1024,
+		" B":  1 / 1024,
+		" MB": 1,
+		" TB": 1024 * 1024,
 	}
-	free = free * 1024
+
+	size_asString := diskinfo[key][2]
+	free_asString := diskinfo[key][3]
+
+	for key, value := range sizeStrings {
+		if strings.Contains(size_asString, key) {
+			size_asString = strings.Replace(size_asString, key, "", -1)
+			sizec, err := strconv.ParseUint(strings.TrimSpace(size_asString), 10, 64)
+			if err != nil {
+				panic(err)
+			}
+			size = sizec * value
+		}
+
+		if strings.Contains(free_asString, key) {
+			free_asString = strings.Replace(free_asString, key, "", -1)
+			freec, err := strconv.ParseUint(strings.TrimSpace(free_asString), 10, 64)
+			if err != nil {
+				panic(err)
+			}
+			free = freec * value
+		}
+	}
 
 	return diskname, status, size, free
 }
 
+//TO DO: Change parsing of diskpart output to regex
 func (d DiskPart) GetVolumes() (volumes map[int]string, err error) {
 	script := fmt.Sprintf("list volume\nEXIT")
 	output, err := d.ExecuteDiskPartScript(script)

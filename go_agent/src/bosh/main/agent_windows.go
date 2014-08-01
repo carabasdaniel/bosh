@@ -4,7 +4,7 @@ package main
 
 import (
 	"code.google.com/p/winsvc/svc"
-	"os"
+	//"os"
 )
 
 type WindowsService struct {
@@ -42,11 +42,12 @@ loop:
 }
 
 func main() {
-	ws := WindowsService{}
-	run := svc.Run
+	runAgent()
+	//ws := WindowsService{}
+	//run := svc.Run
 
-	err := run("boshagent", &ws)
-	if err != nil {
-		os.Exit(1)
-	}
+	//err := run("boshagent", &ws)
+	//if err != nil {
+	//	os.Exit(1)
+	//}
 }
