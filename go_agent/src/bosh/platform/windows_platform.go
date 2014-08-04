@@ -1,5 +1,7 @@
 package platform
 
+// #include <windows.h>
+import "C"
 import (
 	//"encoding/json"
 	"bytes"
@@ -11,6 +13,7 @@ import (
 	"strings"
 	"text/template"
 	"time"
+	"unsafe"
 
 	bosherr "bosh/errors"
 	boshdpresolv "bosh/infrastructure/devicepathresolver"
@@ -365,11 +368,11 @@ func (p windowsPlatform) SetupLogrotate(groupName, basePath, size string) (err e
 	}
 
 	//Restart logrotator service to reload configuration changes
-	err = p.GetRunner().RunCommand("net", "stop", "logrotator")
+	_, _, _, err = p.GetRunner().RunCommand("net", "stop", "logrotator")
 	if err != nil {
 		fmt.Println("Failed stopping logrotator")
 	}
-	err = p.GetRunner().RunCommand("net", "start", "logrotator")
+	_, _, _, err = p.GetRunner().RunCommand("net", "start", "logrotator")
 	if err != nil {
 		fmt.Println("Failed starting logrotator")
 	}
@@ -721,4 +724,86 @@ func (p windowsPlatform) calculateEphemeralDiskPartitionSizes(devicePath string)
 	windowsSize = diskSizeInMb
 
 	return
+}
+
+func enableTokenPrivilege() {
+	var tokenH C.HANDLE
+	defer C.CloseHandle(tokenH)
+	var tkp C.TOKEN_PRIVILEGES
+	succeedOpenToken := C.OpenProcessToken(C.GetCurrentProcess(), C.TOKEN_ADJUST_PRIVILEGES|C.TOKEN_QUERY, &tokenH)
+
+	if succeedOpenToken == C.FALSE {
+		lastError := C.GetLastError()
+		panic(fmt.Sprintf("OpenProcess failed with error: %d", int(lastError)))
+	}
+
+	seDebugPrivilege := (*C.CHAR)(unsafe.Pointer(C.CString("SeCreatePagefilePrivilege")))
+	succedLookupPrivilege := C.LookupPrivilegeValue(nil, seDebugPrivilege, &tkp.Privileges[0].Luid)
+
+	if succedLookupPrivilege == C.FALSE {
+		lastError := C.GetLastError()
+		panic(fmt.Sprintf("LookupPrivilegeValue failed with error: %d", int(lastError)))
+	}
+	tkp.PrivilegeCount = 1
+	tkp.Privileges[0].Attributes = C.SE_PRIVILEGE_ENABLED
+
+	succeedAdjustToken := C.AdjustTokenPrivileges(tokenH, C.FALSE, &tkp, C.DWORD(0), nil, nil)
+	if succeedAdjustToken == C.FALSE {
+		lastError := C.GetLastError()
+		panic(fmt.Sprintf("AdjustTokenPrivileges failed with error: %d", int(lastError)))
+	}
+}
+
+//used for setting PageFile, initial size must be grater than 1
+func SetPageFile(path string, initialSizeMB uint, maximumSizeMB uint) error {
+	newPath := filepath.Join(path, "pagefile.sys")
+
+	enableTokenPrivilege()
+
+	ole.CoInitialize(0)
+	defer ole.CoUninitialize()
+
+	unknown, _ := oleutil.CreateObject("WbemScripting.SWbemLocator")
+	defer unknown.Release()
+
+	wmi, _ := unknown.QueryInterface(ole.IID_IDispatch)
+	defer wmi.Release()
+
+	serviceRaw, _ := oleutil.CallMethod(wmi, "ConnectServer")
+	service := serviceRaw.ToIDispatch()
+	defer service.Release()
+
+	resultRaw, _ := oleutil.CallMethod(service, "ExecQuery", "SELECT * FROM Win32_PageFileSetting")
+	result := resultRaw.ToIDispatch()
+	defer result.Release()
+
+	countVar, _ := oleutil.GetProperty(result, "Count")
+	count := int(countVar.Val)
+
+	for i := 0; i < count; i++ {
+		itemRaw, _ := oleutil.CallMethod(result, "ItemIndex", i)
+		item := itemRaw.ToIDispatch()
+		defer item.Release()
+
+		_, err := oleutil.PutProperty(item, "Name", newPath)
+		if err != nil {
+			return fmt.Errorf("Error setting name", err)
+		}
+		res, erro := oleutil.CallMethod(item, "Put_")
+		_, err = oleutil.PutProperty(item, "InitialSize", initialSizeMB)
+		if err != nil {
+			return fmt.Errorf("Error setting initial size", err)
+		}
+		_, err = oleutil.PutProperty(item, "MaximumSize", maximumSizeMB)
+		if err != nil {
+			return fmt.Errorf("Error setting maximum size", err)
+		}
+		//commit changes
+		res, erro = oleutil.CallMethod(item, "Put_")
+		if erro != nil {
+			return fmt.Errorf("Error commiting changes", erro, res)
+		}
+	}
+
+	return nil
 }
