@@ -48,7 +48,12 @@ func (p windowsPartitioner) Partition(devicePath string, partitions []Partition)
 		if a.SizeInMb == 0 {
 			script = script + fmt.Sprintf("CREATE PARTITION PRIMARY\n")
 		} else {
-			script = script + fmt.Sprintf("CREATE PARTITION PRIMARY SIZE=%d\n", a.SizeInMb)
+			freeSpace, _ := p.GetDeviceSizeInMb(devicePath)
+			if a.SizeInMb > freeSpace {
+				script = script + fmt.Sprintf("CREATE PARTITION PRIMARY\n")
+			} else {
+				script = script + fmt.Sprintf("CREATE PARTITION PRIMARY SIZE=%d\n", a.SizeInMb)
+			}
 		}
 	}
 	script = script + "EXIT\n"

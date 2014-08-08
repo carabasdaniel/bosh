@@ -439,14 +439,14 @@ func (p windowsPlatform) SetupEphemeralDiskWithPath(realPath string) (err error)
 		return nil
 	}
 
-	//_, windowsSize, err := p.calculateEphemeralDiskPartitionSizes(realPath)
+	swapSize, windowsSize, err := p.calculateEphemeralDiskPartitionSizes(realPath)
 	if err != nil {
 		return bosherr.WrapError(err, "Calculating partition sizes")
 	}
 
 	partitions := []boshdisk.Partition{
-		//{SizeInMb: swapSize, Type: boshdisk.PartitionTypeWindows},
-		{SizeInMb: 0, Type: boshdisk.PartitionTypeWindows},
+		{SizeInMb: windowsSize, Type: boshdisk.PartitionTypeWindows},
+		{SizeInMb: swapSize, Type: boshdisk.PartitionTypeWindows},
 	}
 	err = p.diskManager.GetPartitioner().Partition(realPath, partitions)
 	if err != nil {
@@ -460,19 +460,35 @@ func (p windowsPlatform) SetupEphemeralDiskWithPath(realPath string) (err error)
 	//format all raw volumes
 	for index, details := range volumes {
 		if strings.Contains(details, "RAW") {
-			stringIndex := ""
 			volumeNumber := strconv.Itoa(index)
 
 			err = p.diskManager.GetFormatter().Format(volumeNumber, boshdisk.FileSystemNtfs)
 			if err != nil {
 				return bosherr.WrapError(err, "Formatting volume %s", volumeNumber)
 			}
-			err := p.diskManager.GetMounter().Mount(volumeNumber, mountPoint+stringIndex)
+
+			err = p.diskManager.GetMounter().Mount(volumeNumber, mountPoint)
 			if err != nil {
-				return bosherr.WrapError(err, "Mounti volume %d to %s", volumeNumber, mountPoint+stringIndex)
+				return bosherr.WrapError(err, "Mounti volume %d to %s", volumeNumber, mountPoint)
 			}
-			stringIndex = volumeNumber
+			mountPoint = mountPoint + volumeNumber
+			err = p.fs.MkdirAll(mountPoint, os.FileMode(0750))
+			if err != nil {
+				return bosherr.WrapError(err, fmt.Sprintf("Creating swap mount dir at %s", mountPoint))
+			}
 		}
+	}
+
+	mounted, err := p.diskManager.GetMounter().IsMountPoint(mountPoint)
+	if mounted == false {
+		p.fs.RemoveAll(mountPoint)
+		mountPoint = mountPoint[:len(mountPoint)-1]
+	}
+
+	err = SetPageFile(mountPoint, 1000, uint(swapSize))
+	if err != nil {
+		fmt.Println(err)
+		return bosherr.WrapError(err, "Error setting page file to swap partition")
 	}
 
 	return nil
@@ -721,7 +737,7 @@ func (p windowsPlatform) calculateEphemeralDiskPartitionSizes(devicePath string)
 		swapSize = totalMemInMb
 	}
 
-	windowsSize = diskSizeInMb
+	windowsSize = diskSizeInMb - swapSize
 
 	return
 }
