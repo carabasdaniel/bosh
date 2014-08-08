@@ -47,11 +47,15 @@ func NewFakeWindowsMounter(
 	return
 }
 func (m windowsMounter) CreatePrimaryPartition(DiskId int64, label string) error {
-	diskIndex := m.GetDiskIndexForDiskId(DiskId)
+	diskIndex, err := m.GetDiskIndexForDiskId(DiskId)
+	if err != nil {
+		bosherr.WrapError(err, "Error getting disk index for disk id")
+		return err
+	}
 
 	scriptfile := fmt.Sprintf("SELECT Disk %d\n ATTRIBUTE DISK CLEAR READONLY\nSELECT Disk %d\n ONLINE DISK NOERR\nSELECT Disk %d\nCREATE PARTITION PRIMARY\nSELECT PARTITION 1\nONLINE VOLUME NOERR\nFORMAT FS=NTFS LABEL=%s QUICK\nEXIT", diskIndex, diskIndex, diskIndex, label)
 
-	_, err := m.dp.ExecuteDiskPartScript(scriptfile)
+	_, err = m.dp.ExecuteDiskPartScript(scriptfile)
 	if err != nil {
 		for i := 1; i < 5; i++ {
 			_, err = m.dp.ExecuteDiskPartScript(scriptfile)
@@ -202,28 +206,43 @@ func (m windowsMounter) shouldMount(partitionPath, mountPoint string) (bool, err
 	return true, nil
 }
 
-func (m windowsMounter) GetDiskIndexForDiskId(diskid int64) int64 {
+func (m windowsMounter) GetDiskIndexForDiskId(diskid int64) (int64, error) {
 
 	ole.CoInitialize(0)
 	defer ole.CoUninitialize()
 
-	unknown, _ := oleutil.CreateObject("WbemScripting.SWbemLocator")
+	unknown, err := oleutil.CreateObject("WbemScripting.SWbemLocator")
+	if err != nil {
+		return -1, err
+	}
 	defer unknown.Release()
 
-	wmi, _ := unknown.QueryInterface(ole.IID_IDispatch)
+	wmi, err := unknown.QueryInterface(ole.IID_IDispatch)
+	if err != nil {
+		return -1, err
+	}
 	defer wmi.Release()
 
 	// service is a SWbemServices
-	serviceRaw, _ := oleutil.CallMethod(wmi, "ConnectServer")
+	serviceRaw, err := oleutil.CallMethod(wmi, "ConnectServer")
+	if err != nil {
+		return -1, err
+	}
 	service := serviceRaw.ToIDispatch()
 	defer service.Release()
 
 	// result is a SWBemObjectSet
-	resultRaw, _ := oleutil.CallMethod(service, "ExecQuery", "SELECT * FROM Win32_DiskDrive")
+	resultRaw, err := oleutil.CallMethod(service, "ExecQuery", "SELECT * FROM Win32_DiskDrive")
+	if err != nil {
+		return -1, err
+	}
 	result := resultRaw.ToIDispatch()
 	defer result.Release()
 
-	countVar, _ := oleutil.GetProperty(result, "Count")
+	countVar, err := oleutil.GetProperty(result, "Count")
+	if err != nil {
+		return -1, err
+	}
 	count := int(countVar.Val)
 
 	for i := 0; i < count; i++ {
@@ -233,13 +252,13 @@ func (m windowsMounter) GetDiskIndexForDiskId(diskid int64) int64 {
 		asString, _ := oleutil.GetProperty(item, "SCSITargetId")
 		scsiTargetId, converr := asString.Value().(int64)
 		if !converr {
-			return -2
+			return -2, nil
 		}
 		if scsiTargetId == diskid {
 			index, _ := oleutil.GetProperty(item, "Index")
-			return index.Value().(int64)
+			return index.Value().(int64), nil
 		}
 	}
-	return -1
+	return -1, nil
 
 }

@@ -36,10 +36,24 @@ func NewProvider(
 		},
 	)
 
+	jobSupervisor := NewJobSupervisor(
+		platform.GetFs(),
+		platform.GetRunner(),
+		logger,
+		dirProvider,
+		2825,
+		ReloadOptions{
+			MaxTries:               3,
+			MaxCheckTries:          6,
+			DelayBetweenCheckTries: 5 * time.Second,
+		},
+	)
+
 	p.supervisors = map[string]JobSupervisor{
-		"monit":      monitJobSupervisor,
-		"dummy":      NewDummyJobSupervisor(),
-		"dummy-nats": NewDummyNatsJobSupervisor(handler),
+		"windows_job_supervisor": jobSupervisor,
+		"monit":                  monitJobSupervisor,
+		"dummy":                  NewDummyJobSupervisor(),
+		"dummy-nats":             NewDummyNatsJobSupervisor(handler),
 	}
 
 	return
