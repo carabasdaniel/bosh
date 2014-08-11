@@ -12,6 +12,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/pivotal/go-smtpd/smtpd"
+	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -65,6 +67,19 @@ func NewJobSupervisor(
 
 func (js jobSupervisor) Reload() error {
 	//this method was used for reloading monit
+	jobs := ReadJobs(js.fs)
+
+	for counter := 0; counter < len(jobs.Jobs); counter++ {
+		err := RemoveService(jobs.Jobs[counter].Name)
+		if err != nil {
+			bosherr.WrapError(err, fmt.Sprintf("Error removing service %s", jobs.Jobs[counter].Name))
+		}
+		err = InstallService(jobs.Jobs[counter].Name, jobs.Jobs[counter].BinPath)
+		if err != nil {
+			bosherr.WrapError(err, fmt.Sprintf("Error installing service %s", jobs.Jobs[counter].Name))
+		}
+	}
+
 	return nil
 }
 
@@ -75,7 +90,9 @@ func (js jobSupervisor) Start() error {
 		name := jobs.Jobs[counter].Name
 		preScript := jobs.Jobs[counter].PreStart
 
-		if len(preScript) > 0 {
+		if _, err := os.Stat(preScript); os.IsNotExist(err) {
+			fmt.Println("Pre-start script does not exist")
+		} else {
 			_, stderr, exitcode, err := js.runner.RunCommand(preScript)
 
 			if err != nil || exitcode != 0 {
@@ -109,7 +126,9 @@ func (js jobSupervisor) Stop() error {
 
 		preScript := jobs.Jobs[counter].PreStop
 
-		if len(preScript) > 0 {
+		if _, err := os.Stat(preScript); os.IsNotExist(err) {
+			fmt.Println("Pre-start script does not exist")
+		} else {
 			_, stderr, exitcode, err := js.runner.RunCommand(preScript)
 
 			if err != nil || exitcode != 0 {
@@ -148,7 +167,6 @@ func (js jobSupervisor) Stop() error {
 	return nil
 }
 
-//Desired implementation
 func (js jobSupervisor) Status() (status string) {
 	jobs := ReadJobs(js.fs)
 
@@ -221,7 +239,7 @@ func (js jobSupervisor) AddPreStop(name, preStop string) {
 func (js jobSupervisor) AddJob(jobName string, jobIndex int, configPath string) error {
 	jobs_list := ReadJobs(js.fs)
 	//PreStart script path and PreStop script path can't be specified here
-	newjob := Job{jobName, jobIndex, "monitored", "", configPath, ""}
+	newjob := Job{jobName, jobIndex, "monitored", filepath.Join(configPath, "prestart.bat"), configPath, filepath.Join(configPath, "prestop.bat")}
 
 	add_job := append(jobs_list, newjob)
 	bytes, _ := json.Marshal(add_job)

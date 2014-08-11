@@ -6,7 +6,6 @@ import (
 	"code.google.com/p/winsvc/mgr"
 	"code.google.com/p/winsvc/svc"
 	"fmt"
-	"os"
 	"path/filepath"
 )
 
@@ -18,33 +17,15 @@ func (m *myservice) Execute(args []string, r <-chan svc.ChangeRequest, changes c
 	return
 }
 
-func exePath() (string, error) {
-	prog := os.Args[0]
-	p, err := filepath.Abs(prog)
+func exePath(configPath string) ([]string, error) {
+	executables, err := filepath.Glob(filepath.Join(configPath, "*.exe"))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	fi, err := os.Stat(p)
-	if err == nil {
-		if !fi.Mode().IsDir() {
-			return p, nil
-		}
-		err = fmt.Errorf("%s is directory", p)
-	}
-	if filepath.Ext(p) == "" {
-		p += ".exe"
-		fi, err := os.Stat(p)
-		if err == nil {
-			if !fi.Mode().IsDir() {
-				return p, nil
-			}
-			err = fmt.Errorf("%s is directory", p)
-		}
-	}
-	return "", err
+	return executables, nil
 }
 
-func removeService(name string) error {
+func RemoveService(name string) error {
 	m, err := mgr.Connect()
 	if err != nil {
 		return err
@@ -66,30 +47,34 @@ func removeService(name string) error {
 	return nil
 }
 
-func installService(name, desc string) error {
-	exepath, err := exePath()
-	if err != nil {
-		return err
-	}
-	m, err := mgr.Connect()
-	if err != nil {
-		return err
-	}
-	defer m.Disconnect()
-	s, err := m.OpenService(name)
-	if err == nil {
-		s.Close()
-		return fmt.Errorf("service %s already exists", name)
-	}
-	s, err = m.CreateService(name, exepath, mgr.Config{DisplayName: desc})
-	if err != nil {
-		return err
-	}
-	defer s.Close()
-	err = eventlog.InstallAsEventCreate(name, eventlog.Error|eventlog.Warning|eventlog.Info)
-	if err != nil {
-		s.Delete()
-		return fmt.Errorf("SetupEventLogSource() failed: %s", err)
+func InstallService(name, configPath string) error {
+	executables, err := exePath(configPath)
+	for _, exepath := range executables {
+		fmt.Println(exepath)
+		if err != nil {
+			return err
+		}
+		m, err := mgr.Connect()
+		if err != nil {
+			return err
+		}
+		defer m.Disconnect()
+		s, err := m.OpenService(name)
+		if err == nil {
+			s.Close()
+			return fmt.Errorf("service %s already exists", name)
+		}
+		s, err = m.CreateService(name, exepath, mgr.Config{DisplayName: name})
+		if err != nil {
+			return err
+		}
+		defer s.Close()
+		err = eventlog.InstallAsEventCreate(name, eventlog.Error|eventlog.Warning|eventlog.Info)
+		if err != nil {
+			fmt.Println(err)
+			s.Delete()
+			return fmt.Errorf("SetupEventLogSource() failed: %s", err)
+		}
 	}
 	return nil
 }
