@@ -7,11 +7,12 @@ import (
 )
 
 type Job struct {
-	Name       string
-	Index      int
-	ConfigPath string
-	State      string
-	Status     string
+	Name     string
+	Index    int
+	Status   string
+	PreStart string
+	BinPath  string
+	PreStop  string
 }
 
 type Jobs struct {

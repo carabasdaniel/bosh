@@ -16,7 +16,7 @@ import (
 )
 
 const jobSupervisorLogTag = "jobSupervisor"
-const jobSupervisorPath = "C:\\sc_jobs\\jobs3.json"
+const jobSupervisorPath = "C:\\sc_jobs\\jobs.json"
 
 var serviceArguments = []string{}
 
@@ -73,6 +73,15 @@ func (js jobSupervisor) Start() error {
 
 	for counter := 0; counter < len(jobs.Jobs); counter++ {
 		name := jobs.Jobs[counter].Name
+		preScript := jobs.Jobs[counter].PreStart
+
+		if len(preScript) > 0 {
+			_, stderr, exitcode, err := js.runner.RunCommand(preScript)
+
+			if err != nil || exitcode != 0 {
+				return bosherr.WrapError(err, fmt.Sprintf("Exit code: %d - Error output %s", exitcode, stderr))
+			}
+		}
 
 		m, err := mgr.Connect()
 		if err != nil {
@@ -97,6 +106,16 @@ func (js jobSupervisor) Stop() error {
 
 	for counter := 0; counter < len(jobs.Jobs); counter++ {
 		name := jobs.Jobs[counter].Name
+
+		preScript := jobs.Jobs[counter].PreStop
+
+		if len(preScript) > 0 {
+			_, stderr, exitcode, err := js.runner.RunCommand(preScript)
+
+			if err != nil || exitcode != 0 {
+				return bosherr.WrapError(err, fmt.Sprintf("Exit code: %d - Error output %s", exitcode, stderr))
+			}
+		}
 
 		c := svc.Stop
 		to := svc.Stopped
@@ -129,14 +148,11 @@ func (js jobSupervisor) Stop() error {
 	return nil
 }
 
+//Desired implementation
 func (js jobSupervisor) Status() (status string) {
 	jobs := ReadJobs(js.fs)
 
-	if len(jobs.Jobs) > 0 {
-		status = "runnning"
-	} else {
-		status = "unknown"
-	}
+	status = "runnning"
 	for counter := 0; counter < len(jobs.Jobs); counter++ {
 		name := jobs.Jobs[counter].Name
 
@@ -152,17 +168,8 @@ func (js jobSupervisor) Status() (status string) {
 		defer m.Disconnect()
 		s, err := m.OpenService(name)
 		if err != nil {
-			status = "failing"
+			status = "unknown"
 			return //"could not access service"
-		}
-
-		statinfo, err := s.Query()
-		if err != nil {
-			status = "failing"
-		}
-
-		if statinfo.State != svc.Running {
-			status = "failing"
 		}
 		defer s.Close()
 	}
@@ -182,16 +189,43 @@ func (js jobSupervisor) Unmonitor() error {
 	return nil
 }
 
+func (js jobSupervisor) AddPreStart(name, preStart string) {
+	jobs := ReadJobs(js.fs)
+
+	for counter := 0; counter < len(jobs.Jobs); counter++ {
+		if jobs.Jobs[counter].Name == name {
+			jobs.Jobs[counter].PreStart = preStart
+			break
+		}
+	}
+
+	bytes, _ := json.Marshal(jobs.Jobs)
+	js.fs.WriteFile(jobSupervisorPath, bytes)
+}
+
+func (js jobSupervisor) AddPreStop(name, preStop string) {
+	jobs := ReadJobs(js.fs)
+
+	for counter := 0; counter < len(jobs.Jobs); counter++ {
+		if jobs.Jobs[counter].Name == name {
+			jobs.Jobs[counter].PreStop = preStop
+			break
+		}
+	}
+
+	bytes, _ := json.Marshal(jobs.Jobs)
+	js.fs.WriteFile(jobSupervisorPath, bytes)
+}
+
+//TO DO: configPath treated as binPath
 func (js jobSupervisor) AddJob(jobName string, jobIndex int, configPath string) error {
 	jobs_list := ReadJobs(js.fs)
-	newjob := Job{jobName, jobIndex, configPath, "stopped", "monitored"}
+	//PreStart script path and PreStop script path can't be specified here
+	newjob := Job{jobName, jobIndex, "monitored", "", configPath, ""}
 
 	add_job := append(jobs_list, newjob)
 	bytes, _ := json.Marshal(add_job)
-	err := js.fs.WriteFile(jobSupervisorPath, bytes)
-	if err != nil {
-		return err
-	}
+	js.fs.WriteFile(jobSupervisorPath, bytes)
 
 	return nil
 }

@@ -94,9 +94,6 @@ var _ = Describe("jobSupervisor_windows", func() {
 
 	Describe("AddJob", func() {
 		fake := "[{\"Name\":\"LogRotator\",\"Index\":0,\"ConfigPath\":\"C:\\\\boshexecs\\\\logrotator\",\"State\":\"stopped\",\"Status\":\"monitored\"}]"
-		BeforeEach(func() {
-			fs.WriteFileString("C:\\sc-jobs\\sc-jobs-test.json", fake)
-		})
 
 		It("test add job functionality", func() {
 			err := jobsupervisor.AddJob("LogRotator", 0, "C:\\boshexecs\\logrotator")
