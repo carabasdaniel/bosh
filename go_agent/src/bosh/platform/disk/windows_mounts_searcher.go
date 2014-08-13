@@ -66,7 +66,7 @@ func (m windowsMountsSearcher) SearchMounts() ([]Mount, error) {
 	}
 	unknown.Release()
 
-	vols, _ := DiskPart{}.GetVolumes()
+	vols, _ := DiskPart{}.GetVolumes("Partition")
 
 	for k := range mounts {
 		for n, i := range vols {

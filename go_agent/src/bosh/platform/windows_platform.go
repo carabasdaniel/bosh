@@ -454,7 +454,7 @@ func (p windowsPlatform) SetupEphemeralDiskWithPath(realPath string) (err error)
 	}
 
 	//map of volumes with volume number as key and details as string
-	volumes, err := boshdisk.DiskPart{}.GetVolumes()
+	volumes, err := boshdisk.DiskPart{}.GetVolumes("Partition")
 	if err != nil {
 	}
 	//format all raw volumes
@@ -581,7 +581,7 @@ func (p windowsPlatform) MountPersistentDisk(devicePath, mountPoint string) (err
 		return bosherr.WrapError(err, "Mounting partition, incorrect volume id")
 	}
 
-	volumes, err := boshdisk.DiskPart{}.GetVolumes()
+	volumes, err := boshdisk.DiskPart{}.GetVolumes("Partition")
 	if err != nil {
 		return bosherr.WrapError(err, "Mounting partition, error getting volumes")
 	}
@@ -601,7 +601,7 @@ func (p windowsPlatform) MountPersistentDisk(devicePath, mountPoint string) (err
 			return bosherr.WrapError(err, "Partitioning disk")
 		}
 
-		volumes, _ = boshdisk.DiskPart{}.GetVolumes()
+		volumes, _ = boshdisk.DiskPart{}.GetVolumes("Partition")
 		for index, details := range volumes {
 			if strings.Contains(details, "RAW") {
 				volumeNr := strconv.Itoa(index)

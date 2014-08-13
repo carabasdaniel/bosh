@@ -4,7 +4,7 @@ package main
 
 import (
 	"code.google.com/p/winsvc/svc"
-	//"os"
+	"os"
 )
 
 type WindowsService struct {
@@ -42,12 +42,35 @@ loop:
 }
 
 func main() {
-	runAgent()
-	//ws := WindowsService{}
-	//run := svc.Run
 
-	//err := run("boshagent", &ws)
-	//if err != nil {
-	//	os.Exit(1)
-	//}
+	if contains(os.Args, "console") {
+		runAgent()
+	} else {
+		var err error
+		//setting stdout and stderr
+		os.Stdout, err = os.Create("c:\\BoshGo\\log\\stdout.log")
+		if err != nil {
+			panic(err.Error())
+		}
+
+		os.Stderr, err = os.Create("c:\\BoshGo\\log\\stderr.log")
+		if err != nil {
+			panic(err.Error())
+		}
+		ws := WindowsService{}
+		run := svc.Run
+
+		err = run("boshagent", &ws)
+		if err != nil {
+			os.Exit(1)
+		}
+	}
+}
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }

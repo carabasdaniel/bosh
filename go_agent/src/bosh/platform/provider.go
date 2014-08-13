@@ -48,7 +48,10 @@ func NewProvider(logger boshlog.Logger, dirProvider boshdirs.DirectoriesProvider
 
 	udev := boshudev.NewConcreteUdevDevice(runner)
 	linuxCdrom := boshcdrom.NewLinuxCdrom("/dev/sr0", udev, runner)
+	windowsCdrom := boshcdrom.NewWindowsCdrom(windowsDiskManager, runner)
+
 	linuxCdutil := boshcd.NewCdUtil(dirProvider.SettingsDir(), fs, linuxCdrom)
+	windowsCdutil := boshcd.NewCdUtil(dirProvider.SettingsDir(), fs, windowsCdrom)
 
 	compressor := boshcmd.NewTarballCompressor(runner, fs)
 	copier := boshcmd.NewCpCopier(runner, fs, logger)
@@ -106,7 +109,7 @@ func NewProvider(logger boshlog.Logger, dirProvider boshdirs.DirectoriesProvider
 		fs,
 		runner,
 		sigarCollector,
-		nil,
+		windowsCdutil,
 		dirProvider,
 		windowsDiskManager,
 		windowsNetManager,

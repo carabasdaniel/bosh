@@ -15,7 +15,7 @@ type DiskPartInterface interface {
 	ExecuteDiskPartScript(script string) (string, error)
 	GetPartitions(diskId int) (partitions []Partition, err error)
 	GetDiskInfo(diskid int) (diskname, status string, size, free uint64)
-	GetVolumes() (volumes map[int]string, err error)
+	GetVolumes(diskType string) (volumes map[int]string, err error)
 }
 
 type DiskPart struct {
@@ -158,7 +158,7 @@ func (d DiskPart) GetDiskInfo(diskid int) (diskname, status string, size, free u
 }
 
 //TO DO: Change parsing of diskpart output to regex
-func (d DiskPart) GetVolumes() (volumes map[int]string, err error) {
+func (d DiskPart) GetVolumes(volumeType string) (volumes map[int]string, err error) {
 	script := fmt.Sprintf("list volume\nEXIT")
 	output, err := d.ExecuteDiskPartScript(script)
 	if err != nil {
@@ -171,7 +171,7 @@ func (d DiskPart) GetVolumes() (volumes map[int]string, err error) {
 
 	lastkey := ""
 	for _, line := range content {
-		if strings.Contains(line, "Partition") {
+		if strings.Contains(line, volumeType) {
 			info := strings.Split(line, "   ")
 			lastkey = strings.TrimSpace(info[0])
 			for _, data := range info {
