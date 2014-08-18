@@ -33,37 +33,49 @@ func NewFakeWindowsPartitioner(logger boshlog.Logger, cmdRunner boshsys.CmdRunne
 }
 
 func (p windowsPartitioner) Partition(devicePath string, partitions []Partition) (err error) {
+	var exists bool
 	diskId, err := strconv.Atoi(devicePath)
 	if err != nil {
 		return err
 	}
 
-	if p.diskMatchesPartitions(diskId, partitions) {
-		return
-	}
-
-	script := fmt.Sprintf("SELECT DISK %d\n CLEAN\n", diskId)
-
-	for _, a := range partitions {
-		if a.SizeInMb == 0 {
-			script = script + fmt.Sprintf("CREATE PARTITION PRIMARY\n")
-		} else {
-			freeSpace, _ := p.GetDeviceSizeInMb(devicePath)
-			if a.SizeInMb > freeSpace {
-				script = script + fmt.Sprintf("CREATE PARTITION PRIMARY\n")
-			} else {
-				script = script + fmt.Sprintf("CREATE PARTITION PRIMARY SIZE=%d\n", a.SizeInMb)
-			}
-		}
-	}
-	script = script + "EXIT\n"
-
-	_, err = p.Dpart.ExecuteDiskPartScript(script)
-
+	exists, err = p.diskMatchesPartitions(diskId, partitions[0])
 	if err != nil {
 		return err
 	}
+	if exists == true {
+		return nil
+	}
 
+	errDiskPart := p.executeDiskPart(fmt.Sprintf("ONLINE DISK\n ATTRIBUTES DISK CLEAR READONLY\n"), diskId)
+	if errDiskPart != nil {
+		p.logger.Debug("Partitioner", fmt.Sprintf("Disk already online %s", errDiskPart))
+	}
+
+	for _, a := range partitions {
+		if a.SizeInMb == 0 {
+			return
+		} else {
+			freeSpace, _ := p.GetDeviceSizeInMb(devicePath)
+			if a.SizeInMb > freeSpace {
+				err = p.executeDiskPart(fmt.Sprintf("CREATE PARTITION PRIMARY\n"), diskId)
+
+			} else {
+				err = p.executeDiskPart(fmt.Sprintf("CREATE PARTITION PRIMARY SIZE=%d\n", a.SizeInMb), diskId)
+
+			}
+		}
+		if err != nil {
+			return bosherr.WrapError(err, fmt.Sprintf("Error creation partition with size %d for %d", a.SizeInMb, diskId))
+		}
+	}
+
+	return
+}
+
+func (p windowsPartitioner) executeDiskPart(command string, diskId int) (err error) {
+	script := fmt.Sprintf("SELECT DISK %d\n %s\n EXIT\n", diskId, command)
+	_, err = p.Dpart.ExecuteDiskPartScript(script)
 	return
 }
 
@@ -80,38 +92,21 @@ func (p windowsPartitioner) GetDeviceSizeInMb(devicePath string) (size uint64, e
 	return free, nil
 }
 
-func (p windowsPartitioner) diskMatchesPartitions(diskId int, partitionsToMatch []Partition) (result bool) {
+func (p windowsPartitioner) diskMatchesPartitions(diskId int, partitionToMatch Partition) (exists bool, err error) {
 	existingPartitions, err := p.Dpart.GetPartitions(diskId)
 	if err != nil {
-		err = bosherr.WrapError(err, "Getting partitions for disk %d", diskId)
+		err = bosherr.WrapError(err, "Getting partitions for disk %s", diskId)
 		return
 	}
 
-	if len(existingPartitions) < len(partitionsToMatch) {
-		return
-	}
-
-	remainingDiskSpace, err := p.GetDeviceSizeInMb(strconv.Itoa(diskId))
-	if err != nil {
-		err = bosherr.WrapError(err, "Getting device size for disk %d", diskId)
-		return
-	}
-
-	for index, partitionToMatch := range partitionsToMatch {
-		if index == len(partitionsToMatch)-1 {
-			partitionToMatch.SizeInMb = remainingDiskSpace
-		}
-
-		existingPartition := existingPartitions[index]
-		switch {
-		case existingPartition.Type != partitionToMatch.Type:
-			return
-		case notWithinDelta(existingPartition.SizeInMb, partitionToMatch.SizeInMb, 20):
+	for _, partition := range existingPartitions {
+		if partition.Type == partitionToMatch.Type &&
+			partition.SizeInMb == partitionToMatch.SizeInMb {
+			exists = true
 			return
 		}
-
-		remainingDiskSpace = remainingDiskSpace - partitionToMatch.SizeInMb
 	}
+	exists = false
+	return
 
-	return true
 }

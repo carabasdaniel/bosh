@@ -1,7 +1,6 @@
 package disk
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -90,7 +89,7 @@ func (d DiskPart) GetPartitions(diskId int) (partitions []Partition, err error) 
 	}
 
 	if !found {
-		return nil, errors.New(fmt.Sprintf("No partitions found on disk %d", diskId))
+		return nil, nil
 	}
 
 	return partitions, nil

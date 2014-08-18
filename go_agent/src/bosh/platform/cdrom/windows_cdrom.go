@@ -1,20 +1,23 @@
 package cdrom
 
 import (
+	boshlog "bosh/logger"
 	boshdisk "bosh/platform/disk"
 	boshsys "bosh/system"
-	"fmt"
+	"strconv"
 )
 
 type WindowsCdrom struct {
 	diskManager boshdisk.Manager
 	runner      boshsys.CmdRunner
+	logger      boshlog.Logger
 }
 
-func NewWindowsCdrom(diskManager boshdisk.Manager, runner boshsys.CmdRunner) (cdrom WindowsCdrom) {
+func NewWindowsCdrom(diskManager boshdisk.Manager, runner boshsys.CmdRunner, logger boshlog.Logger) (cdrom WindowsCdrom) {
 	cdrom = WindowsCdrom{
 		diskManager: diskManager,
 		runner:      runner,
+		logger:      logger,
 	}
 	return
 }
@@ -23,13 +26,12 @@ func getCdromVolumeId() (id string, err error) {
 
 	diskpart := boshdisk.NewDiskPart()
 	cdromDevices, err := diskpart.GetVolumes("DVD-ROM")
-	fmt.Println("CD rom devices:", cdromDevices)
 	if err != nil {
 		return "-1", err
 	}
 
 	for key, _ := range cdromDevices {
-		id = string(key)
+		id = strconv.Itoa(key)
 		break
 	}
 
@@ -53,15 +55,19 @@ func (cdrom WindowsCdrom) Mount(mountPath string) (err error) {
 	return nil
 }
 func (cdrom WindowsCdrom) Unmount() (err error) {
+
+	cdrom.logger.Debug("CdRom", "Unmounting cdrom")
 	cdromId, err := getCdromVolumeId()
 	if err != nil {
 		return err
 	}
+	cdrom.logger.Debug("CdRom", "Found cdrom volume ID %s", cdromId)
 	_, err = cdrom.diskManager.GetMounter().Unmount(cdromId)
 	if err != nil {
 		return err
 	}
 
+	cdrom.logger.Debug("CdRom", "Unmount Done")
 	return nil
 }
 func (cdrom WindowsCdrom) Eject() (err error) {

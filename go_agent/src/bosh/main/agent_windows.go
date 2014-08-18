@@ -48,12 +48,12 @@ func main() {
 	} else {
 		var err error
 		//setting stdout and stderr
-		os.Stdout, err = os.Create("c:\\BoshGo\\log\\stdout.log")
+		os.Stdout, err = os.Create("c:\\vcap\\bosh\\agent\\logs\\stdout.log")
+		os.Stderr, err = os.Create("c:\\vcap\\bosh\\agent\\logs\\stderr.log")
 		if err != nil {
 			panic(err.Error())
 		}
 
-		os.Stderr, err = os.Create("c:\\BoshGo\\log\\stderr.log")
 		if err != nil {
 			panic(err.Error())
 		}

@@ -50,25 +50,33 @@ func (net windowsNetManager) getDNSServers(networks boshsettings.Networks) []str
 }
 
 func (net windowsNetManager) SetupDhcp(networks boshsettings.Networks, errCh chan error) error {
+	var isError bool
 	for _, network := range networks {
 		err := net.SetupDHCP(network.Mac)
 		if err != nil {
 			errCh <- err
 		}
 	}
-	close(errCh)
+	if isError {
+		close(errCh)
+	}
 	return nil
 }
 
 func (net windowsNetManager) SetupManualNetworking(networks boshsettings.Networks, errCh chan error) error {
+	var isError bool
 	for _, network := range networks {
 		dns := strings.Join(network.DNS, ",")
 		err := net.SetupNetwork(network.Mac, network.IP, network.Netmask, network.Gateway, dns)
 		if err != nil {
+			isError = true
 			errCh <- err
 		}
 	}
-	close(errCh)
+	if isError {
+		close(errCh)
+	}
+
 	return nil
 }
 

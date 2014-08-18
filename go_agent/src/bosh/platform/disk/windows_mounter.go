@@ -121,6 +121,7 @@ func (m windowsMounter) SwapOn(partitionPath string) (err error) {
 
 //partitionOrMountPoint should be the volume index
 func (m windowsMounter) Unmount(partitionOrMountPoint string) (bool, error) {
+
 	isMounted, err := m.IsMounted(partitionOrMountPoint)
 	if err != nil || !isMounted {
 		return false, err
@@ -174,7 +175,6 @@ func (m windowsMounter) IsMounted(partitionOrMountPoint string) (bool, error) {
 	if err != nil {
 		return false, bosherr.WrapError(err, "Searching mounts")
 	}
-
 	for _, mount := range mounts {
 		if mount.PartitionPath == partitionOrMountPoint || mount.MountPoint == partitionOrMountPoint {
 			return true, nil

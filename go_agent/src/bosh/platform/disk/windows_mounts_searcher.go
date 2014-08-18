@@ -19,10 +19,10 @@ func NewWindowsMountsSearcher(fs boshsys.FileSystem) MountsSearcher {
 }
 
 func (m windowsMountsSearcher) SearchMounts() ([]Mount, error) {
-
+	var errCallMethod error
+	var property *ole.VARIANT
 	ole.CoInitialize(0)
 	defer ole.CoUninitialize()
-
 	unknown, err := oleutil.CreateObject("WbemScripting.SWbemLocator")
 
 	if err != nil {
@@ -37,37 +37,54 @@ func (m windowsMountsSearcher) SearchMounts() ([]Mount, error) {
 	defer wmi.Release()
 
 	// service is a SWbemServices
-	serviceRaw, _ := oleutil.CallMethod(wmi, "ConnectServer")
+	serviceRaw, errConnectServer := oleutil.CallMethod(wmi, "ConnectServer")
+	if errConnectServer != nil {
+		return nil, bosherr.WrapError(errConnectServer, "WMI Connect Server error")
+	}
 	service := serviceRaw.ToIDispatch()
 	defer service.Release()
 
 	// result is a SWBemObjectSet
-	resultRaw, _ := oleutil.CallMethod(service, "ExecQuery", "SELECT * FROM Win32_Volume")
+	resultRaw, errExecQuery := oleutil.CallMethod(service, "ExecQuery", "SELECT * FROM Win32_Volume")
+	if errExecQuery != nil {
+		return nil, bosherr.WrapError(errExecQuery, "WMI query error")
+	}
 	result := resultRaw.ToIDispatch()
 	defer result.Release()
 
-	countVar, _ := oleutil.GetProperty(result, "Count")
+	countVar, errGetProperty := oleutil.GetProperty(result, "Count")
+	if errGetProperty != nil {
+		return nil, bosherr.WrapError(errGetProperty, "WMI Get Property error")
+	}
 	count := int(countVar.Val)
 
 	mounts := make([]Mount, count)
 
 	for i := 0; i < count; i++ {
-		itemRaw, _ := oleutil.CallMethod(result, "ItemIndex", i)
-		item := itemRaw.ToIDispatch()
-		defer item.Release()
+		property, errCallMethod = oleutil.CallMethod(result, "ItemIndex", i)
+		if errCallMethod != nil {
+			return nil, bosherr.WrapError(errCallMethod, "ItemIndex Call method")
+		}
+		item := property.ToIDispatch()
 
-		NameasString, _ := oleutil.GetProperty(item, "Name")
+		property, errCallMethod = oleutil.GetProperty(item, "Name")
+		if errCallMethod != nil {
+			return nil, bosherr.WrapError(errCallMethod, "Get Name")
+		}
+		mounts[i].MountPoint = property.ToString()
 
-		DevIDasString, _ := oleutil.GetProperty(item, "DeviceID")
-
-		mounts[i].PartitionPath = DevIDasString.ToString()
-
-		mounts[i].MountPoint = NameasString.ToString()
+		property, errCallMethod = oleutil.GetProperty(item, "DeviceID")
+		if errCallMethod != nil {
+			return nil, bosherr.WrapError(errCallMethod, "Get Device Id ")
+		}
+		mounts[i].PartitionPath = property.ToString()
+		item.Release()
 	}
-	unknown.Release()
 
-	vols, _ := DiskPart{}.GetVolumes("Partition")
-
+	vols, errDisk := DiskPart{}.GetVolumes(" ")
+	if errDisk != nil {
+		return nil, bosherr.WrapError(errDisk, "Disk Part")
+	}
 	for k := range mounts {
 		for n, i := range vols {
 			if len(mounts[k].MountPoint) == 3 {
@@ -83,6 +100,5 @@ func (m windowsMountsSearcher) SearchMounts() ([]Mount, error) {
 			}
 		}
 	}
-
 	return mounts, nil
 }

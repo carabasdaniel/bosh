@@ -66,11 +66,13 @@ func NewWindowsPlatform(
 		collector:        collector,
 		compressor:       boshcmd.NewTarballCompressor(cmdRunner, fs),
 		copier:           boshcmd.NewCpCopier(cmdRunner, fs, logger),
-		dirProvider:      boshdir.NewDirectoriesProvider("C:/"),
+		dirProvider:      dirProvider,
 		vitalsService:    boshvitals.NewService(collector, dirProvider),
 		cdutil:           cdutil,
 		diskManager:      diskManager,
+		netManager:       netManager,
 		diskScanDuration: diskScanDuration,
+		logger:           logger,
 	}
 }
 
@@ -133,19 +135,19 @@ func (p windowsPlatform) CreateUser(username, password, basePath string) (err er
 	defer ole.CoUninitialize()
 
 	if err != nil {
-		fmt.Println(err)
+		p.logger.Debug("platform", "Error initilizing OLE", err)
 	}
 
 	unknown, err := oleutil.CreateObject("BoshUtilities.WindowsUsersAndGroups")
 	defer unknown.Release()
 	if err != nil {
-		fmt.Println(err)
+		p.logger.Debug("platform", "Error creating object", err)
 	}
 
 	cons, err := unknown.QueryInterface(ole.IID_IDispatch)
 	defer cons.Release()
 	if err != nil {
-		fmt.Println(err)
+		p.logger.Debug("platform", "Error querying interface", err)
 	}
 
 	_, err = oleutil.CallMethod(cons, "CreateUser", username, password, basePath)
@@ -163,19 +165,19 @@ func (p windowsPlatform) AddUserToGroups(username string, groups []string) (err 
 	defer ole.CoUninitialize()
 
 	if err != nil {
-		fmt.Println(err)
+		p.logger.Debug("platform", "Error initilizing OLE", err)
 	}
 
 	unknown, err := oleutil.CreateObject("BoshUtilities.WindowsUsersAndGroups")
 	defer unknown.Release()
 	if err != nil {
-		fmt.Println(err)
+		p.logger.Debug("platform", "Error creating object", err)
 	}
 
 	cons, err := unknown.QueryInterface(ole.IID_IDispatch)
 	defer cons.Release()
 	if err != nil {
-		fmt.Println(err)
+		p.logger.Debug("platform", "Error querying interface", err)
 	}
 
 	for _, group := range groups {
@@ -214,19 +216,19 @@ func (p windowsPlatform) DeleteUser(username string) (err error) {
 	defer ole.CoUninitialize()
 
 	if err != nil {
-		fmt.Println(err)
+		p.logger.Debug("platform", "Error initilizing OLE", err)
 	}
 
 	unknown, err := oleutil.CreateObject("BoshUtilities.WindowsUsersAndGroups")
 	defer unknown.Release()
 	if err != nil {
-		fmt.Println(err)
+		p.logger.Debug("platform", "Error creating object", err)
 	}
 
 	cons, err := unknown.QueryInterface(ole.IID_IDispatch)
 	defer cons.Release()
 	if err != nil {
-		fmt.Println(err)
+		p.logger.Debug("platform", "Error querying interface", err)
 	}
 
 	_, err = oleutil.CallMethod(cons, "DeleteUser", username)
@@ -243,17 +245,17 @@ func (p windowsPlatform) findEphemeralUsersMatching(reg *regexp.Regexp) (matchin
 	defer ole.CoUninitialize()
 
 	if err != nil {
-		fmt.Println(err)
+		p.logger.Debug("platform", "Error initilizing OLE", err)
 	}
 
 	unknown1, errr := oleutil.CreateObject("BoshUtilities.WindowsUsersAndGroups")
 	if errr != nil {
-		fmt.Println(errr)
+		p.logger.Debug("platform", "Error creating object", errr)
 	}
 
 	cons1, errr := unknown1.QueryInterface(ole.IID_IDispatch)
 	if errr != nil {
-		fmt.Println(errr)
+		p.logger.Debug("platform", "Error querying interface", errr)
 	}
 
 	result, err := oleutil.CallMethod(cons1, "GetUsers")
@@ -331,7 +333,9 @@ func (p windowsPlatform) SetupHostname(hostname string) (err error) {
 		err = bosherr.WrapError(err, "Shelling out to hostname")
 		return
 	}
-
+	if old_hostname == hostname {
+		return
+	}
 	_, _, _, err = p.cmdRunner.RunCommand("netdom", "RENAMECOMPUTER", strings.TrimSpace(old_hostname), "/NewName", hostname, "/force")
 
 	if err != nil {
@@ -395,17 +399,17 @@ func (p windowsPlatform) SetTimeWithNtpServers(servers []string) (err error) {
 	defer ole.CoUninitialize()
 
 	if err != nil {
-		fmt.Println(err)
+		p.logger.Debug("platform", "Error initilizing OLE", err)
 	}
 
 	unknown, errr := oleutil.CreateObject("BoshUtilities.NtpClient")
 	if errr != nil {
-		fmt.Println(errr)
+		p.logger.Debug("platform", "Error creating object", errr)
 	}
 
 	cons, errr := unknown.QueryInterface(ole.IID_IDispatch)
 	if errr != nil {
-		fmt.Println(errr)
+		p.logger.Debug("platform", "Error querying interface", errr)
 	}
 
 	for _, server := range servers {
@@ -427,15 +431,10 @@ func (p windowsPlatform) SetTimeWithNtpServers(servers []string) (err error) {
 
 //realPath should be disk id
 func (p windowsPlatform) SetupEphemeralDiskWithPath(realPath string) (err error) {
-	mountPoint := p.dirProvider.DataDir()
-	//p.fs.RemoveAll(mountPoint)
-	err = p.fs.MkdirAll(mountPoint, os.FileMode(0750))
-	if err != nil {
-		return bosherr.WrapError(err, "Creating data dir")
-	}
 
+	swapMountPoint := filepath.Join(p.dirProvider.BaseDir(), "swap")
 	if realPath == "" {
-		//p.logger.Debug("platform", "Using root disk as ephemeral disk")
+		p.logger.Debug("platform", "Using root disk as ephemeral disk")
 		return nil
 	}
 
@@ -444,54 +443,63 @@ func (p windowsPlatform) SetupEphemeralDiskWithPath(realPath string) (err error)
 		return bosherr.WrapError(err, "Calculating partition sizes")
 	}
 
-	partitions := []boshdisk.Partition{
-		{SizeInMb: windowsSize, Type: boshdisk.PartitionTypeWindows},
-		{SizeInMb: swapSize, Type: boshdisk.PartitionTypeWindows},
-	}
-	err = p.diskManager.GetPartitioner().Partition(realPath, partitions)
+	err = p.createAndMount(realPath, p.dirProvider.DataDir(), windowsSize)
 	if err != nil {
-		return bosherr.WrapError(err, "Partitioning disk")
+		return bosherr.WrapError(err, "Creating ephemeral disk")
+	}
+
+	err = p.createAndMount(realPath, swapMountPoint, swapSize)
+	if err != nil {
+		return bosherr.WrapError(err, "Creating swap disk")
+	}
+	err = SetPageFile(swapMountPoint, 2, uint(swapSize))
+	if err != nil {
+		p.logger.Error("platform", "setting page file", err)
+		return bosherr.WrapError(err, "Error setting page file to swap partition")
+	}
+
+	return nil
+}
+
+func (p windowsPlatform) createAndMount(diskId string, mountPath string, sizeInMB uint64) (err error) {
+	p.logger.Debug("platform", "Creating and mounting partition for", mountPath)
+	err = p.fs.MkdirAll(mountPath, os.FileMode(0750))
+	if err != nil {
+		return bosherr.WrapError(err, "Creating data dir")
+	}
+
+	partitions := []boshdisk.Partition{
+		{SizeInMb: sizeInMB, Type: boshdisk.PartitionTypeWindows},
+	}
+	err = p.diskManager.GetPartitioner().Partition(diskId, partitions)
+	if err != nil {
+		return bosherr.WrapError(err, "Partitioning disk with id: %d", diskId)
 	}
 
 	//map of volumes with volume number as key and details as string
 	volumes, err := boshdisk.DiskPart{}.GetVolumes("Partition")
 	if err != nil {
+		return bosherr.WrapError(err, "retrieving volumes information")
 	}
+
 	//format all raw volumes
 	for index, details := range volumes {
+		p.logger.Debug("platform", fmt.Sprintf("Formating volume with index %d and details %s", index, details))
 		if strings.Contains(details, "RAW") {
 			volumeNumber := strconv.Itoa(index)
-
 			err = p.diskManager.GetFormatter().Format(volumeNumber, boshdisk.FileSystemNtfs)
 			if err != nil {
 				return bosherr.WrapError(err, "Formatting volume %s", volumeNumber)
 			}
-
-			err = p.diskManager.GetMounter().Mount(volumeNumber, mountPoint)
+			err = p.diskManager.GetMounter().Mount(volumeNumber, mountPath)
 			if err != nil {
-				return bosherr.WrapError(err, "Mounti volume %d to %s", volumeNumber, mountPoint)
+				return bosherr.WrapError(err, "Mounting volume %d to %s", volumeNumber, mountPath)
 			}
-			mountPoint = mountPoint + volumeNumber
-			err = p.fs.MkdirAll(mountPoint, os.FileMode(0750))
-			if err != nil {
-				return bosherr.WrapError(err, fmt.Sprintf("Creating swap mount dir at %s", mountPoint))
-			}
+			break
 		}
 	}
+	return
 
-	mounted, err := p.diskManager.GetMounter().IsMountPoint(mountPoint)
-	if mounted == false {
-		p.fs.RemoveAll(mountPoint)
-		mountPoint = mountPoint[:len(mountPoint)-1]
-	}
-
-	err = SetPageFile(mountPoint, 1000, uint(swapSize))
-	if err != nil {
-		fmt.Println(err)
-		return bosherr.WrapError(err, "Error setting page file to swap partition")
-	}
-
-	return nil
 }
 
 func (p windowsPlatform) SetupDataDir() error {
@@ -568,54 +576,16 @@ func (p windowsPlatform) changeTmpDirPermissions(path string) error {
 
 //devicePath needs to represent the volume id
 func (p windowsPlatform) MountPersistentDisk(devicePath, mountPoint string) (err error) {
-	//p.logger.Debug("platform", "Mounting persistent disk volume %s at %s", devicePath, mountPoint)
+	p.logger.Debug("platform", "Mounting persistent disk volume %s at %s", devicePath, mountPoint)
 
-	err = p.fs.MkdirAll(mountPoint, os.FileMode(0700))
-	if err != nil {
-		return bosherr.WrapError(err, "Creating directory %s", mountPoint)
+	diskSize, errDiskSize := p.diskManager.GetPartitioner().GetDeviceSizeInMb(devicePath)
+	if errDiskSize != nil {
+		return bosherr.WrapError(errDiskSize, "Retrieving persistent disk size")
 	}
 
-	volumeNumber, err := strconv.Atoi(devicePath)
-
+	err = p.createAndMount(devicePath, mountPoint, diskSize)
 	if err != nil {
-		return bosherr.WrapError(err, "Mounting partition, incorrect volume id")
-	}
-
-	volumes, err := boshdisk.DiskPart{}.GetVolumes("Partition")
-	if err != nil {
-		return bosherr.WrapError(err, "Mounting partition, error getting volumes")
-	}
-	//if volume exists mount, else try to create it and mount there
-	if _, ok := volumes[volumeNumber]; ok {
-		err = p.diskManager.GetMounter().Mount(devicePath, mountPoint)
-		if err != nil {
-			return bosherr.WrapError(err, "Mounting partition")
-		}
-	} else {
-		partitions := []boshdisk.Partition{
-			{Type: boshdisk.PartitionTypeWindows},
-		}
-
-		err = p.diskManager.GetPartitioner().Partition(devicePath, partitions)
-		if err != nil {
-			return bosherr.WrapError(err, "Partitioning disk")
-		}
-
-		volumes, _ = boshdisk.DiskPart{}.GetVolumes("Partition")
-		for index, details := range volumes {
-			if strings.Contains(details, "RAW") {
-				volumeNr := strconv.Itoa(index)
-				err = p.diskManager.GetFormatter().Format(volumeNr, boshdisk.FileSystemNtfs)
-				if err != nil {
-					return bosherr.WrapError(err, "Formatting volume %s", volumeNr)
-				}
-				err := p.diskManager.GetMounter().Mount(volumeNr, mountPoint)
-				if err != nil {
-					return bosherr.WrapError(err, "Mounti volume %d to %s", volumeNr, mountPoint)
-				}
-				break
-			}
-		}
+		return bosherr.WrapError(err, "Creating persistent disk")
 	}
 	return
 }

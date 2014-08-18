@@ -48,7 +48,7 @@ func NewProvider(logger boshlog.Logger, dirProvider boshdirs.DirectoriesProvider
 
 	udev := boshudev.NewConcreteUdevDevice(runner)
 	linuxCdrom := boshcdrom.NewLinuxCdrom("/dev/sr0", udev, runner)
-	windowsCdrom := boshcdrom.NewWindowsCdrom(windowsDiskManager, runner)
+	windowsCdrom := boshcdrom.NewWindowsCdrom(windowsDiskManager, runner, logger)
 
 	linuxCdutil := boshcd.NewCdUtil(dirProvider.SettingsDir(), fs, linuxCdrom)
 	windowsCdutil := boshcd.NewCdUtil(dirProvider.SettingsDir(), fs, windowsCdrom)
