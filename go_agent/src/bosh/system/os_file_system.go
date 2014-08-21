@@ -11,6 +11,9 @@ import (
 	bosherr "bosh/errors"
 	boshlog "bosh/logger"
 	osuser "os/user"
+
+	"github.com/mattn/go-ole"
+	"github.com/mattn/go-ole/oleutil"
 )
 
 type osFileSystem struct {
@@ -185,33 +188,96 @@ func (fs osFileSystem) Rename(oldPath, newPath string) (err error) {
 func (fs osFileSystem) Symlink(oldPath, newPath string) error {
 	fs.logger.Debug(fs.logTag, "Symlinking oldPath %s with newPath %s", oldPath, newPath)
 
-	actualOldPath, err := filepath.EvalSymlinks(oldPath)
-	if err != nil {
-		return bosherr.WrapError(err, "Evaluating symlinks for %s", oldPath)
-	}
+	//TODO: wait for the next Go release : https://code.google.com/p/go/issues/detail?id=5750
+	//actualOldPath, err := filepath.EvalSymlinks(oldPath)
+	//if err != nil {
+	//	return bosherr.WrapError(err, "Evaluating symlinks for %s", oldPath)
+	//}
 
-	existingTargetedPath, err := filepath.EvalSymlinks(newPath)
-	if err == nil {
-		if existingTargetedPath == actualOldPath {
-			return nil
-		}
+	//existingTargetedPath, err := filepath.EvalSymlinks(newPath)
+	//if err == nil {
+	//	if existingTargetedPath == actualOldPath {
+	//		return nil
+	//	}
 
+	//	err = os.Remove(newPath)
+	//	if err != nil {
+	//		return bosherr.WrapError(err, "Failed to delete symlimk at %s", newPath)
+	//	}
+	//}
+
+	//containingDir := filepath.Dir(newPath)
+	//if !fs.FileExists(containingDir) {
+	//	fs.MkdirAll(containingDir, os.FileMode(0700))
+	//}
+	if _, err := os.Stat(newPath); err == nil {
 		err = os.Remove(newPath)
 		if err != nil {
 			return bosherr.WrapError(err, "Failed to delete symlimk at %s", newPath)
 		}
 	}
 
-	containingDir := filepath.Dir(newPath)
-	if !fs.FileExists(containingDir) {
-		fs.MkdirAll(containingDir, os.FileMode(0700))
+	//containingDir := filepath.Dir(newPath)
+	//if !fs.FileExists(containingDir) {
+	//	fs.MkdirAll(containingDir, os.FileMode(0700))
+	//}
+	//return os.Symlink(oldPath, newPath)
+
+	//HACK
+	err := ole.CoInitializeEx(0, ole.COINIT_APARTMENTTHREADED)
+	defer ole.CoUninitialize()
+
+	if err != nil {
+		return bosherr.WrapError(err, "Error initilizing OLE")
 	}
 
-	return os.Symlink(oldPath, newPath)
+	unknown, errr := oleutil.CreateObject("BoshUtilities.Symlinks")
+	if errr != nil {
+		return bosherr.WrapError(errr, "Error creating object")
+	}
+
+	cons, errr := unknown.QueryInterface(ole.IID_IDispatch)
+	if errr != nil {
+		return bosherr.WrapError(errr, "Error creating object")
+	}
+
+	_, err = oleutil.CallMethod(cons, "CreateSymLink", oldPath, newPath)
+	if err != nil {
+		return bosherr.WrapError(errr, "Error creating symlink")
+	}
+
+	return nil
+
 }
 
 func (fs osFileSystem) ReadLink(symlinkPath string) (targetPath string, err error) {
-	targetPath, err = os.Readlink(symlinkPath)
+	err = ole.CoInitializeEx(0, ole.COINIT_APARTMENTTHREADED)
+	defer ole.CoUninitialize()
+
+	if err != nil {
+		err = bosherr.WrapError(err, "Error initilizing OLE")
+		return
+	}
+
+	unknown, errr := oleutil.CreateObject("BoshUtilities.Symlinks")
+	if errr != nil {
+		err = bosherr.WrapError(errr, "Error creating object")
+		return
+	}
+
+	cons, errr := unknown.QueryInterface(ole.IID_IDispatch)
+	if errr != nil {
+		err = bosherr.WrapError(errr, "Error creating object")
+		return
+	}
+
+	targetPathVariant, errr := oleutil.CallMethod(cons, "GetSymlinkInfo", symlinkPath)
+	if errr != nil {
+		err = bosherr.WrapError(errr, "Error creating symlink")
+		return
+	}
+
+	targetPath = targetPathVariant.ToString()
 	return
 }
 
